@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>佳慧的專屬健身紀錄｜Awake & Grow</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans TC"', '"Inter"', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              850: '#162032',
+              900: '#0f172a',
+              950: '#080d1a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', 'Inter', sans-serif;
+      background-color: #0b1120;
+      color: #f8fafc;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    }
+    .emerald-gradient {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-dumbbell text-slate-950 text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+            佳慧的健身紀錄
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">Awake</span>
+          </h1>
+          <p class="text-xs text-slate-400">不用寫完。有東西值得留下，就寫。</p>
+        </div>
+      </div>
+      <button onclick="switchTab('log')" class="relative px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-400 border border-slate-700 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>今日訓練</span>
+        <span id="headerCartBadge" class="hidden w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-extrabold text-[11px] flex items-center justify-center">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-xl mx-auto px-4 pt-4">
+
+    <!-- ==================== TAB 1: 動作選單 (進場開練) ==================== -->
+    <section id="tab-exercises" class="space-y-4">
+      <!-- Intro Banner -->
+      <div class="glass-card rounded-2xl p-4 border-l-4 border-l-amber-500">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-compass text-amber-400"></i>
+              進健身房，今天想練哪裡？
+            </h2>
+            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+              點選下方部位，直接查看<span class="text-amber-300 font-medium">上次重量×次數×組數</span>與<span class="text-emerald-300 font-medium">器材機關錦囊</span>，一鍵帶入今日訓練！
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="grid grid-cols-4 gap-2" id="categoryPills">
+        <button onclick="setCategoryFilter('全部')" data-cat="全部" class="cat-pill py-2.5 px-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20">
+          <i class="fa-solid fa-layer-group text-sm"></i>
+          <span>全部 (15)</span>
+        </button>
+        <button onclick="setCategoryFilter('上肢')" data-cat="上肢" class="cat-pill py-2.5 px-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 bg-slate-800/90 text-slate-300 border border-slate-700/70">
+          <i class="fa-solid fa-hand-fist text-sm text-sky-400"></i>
+          <span>上肢</span>
+        </button>
+        <button onclick="setCategoryFilter('下肢')" data-cat="下肢" class="cat-pill py-2.5 px-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 bg-slate-800/90 text-slate-300 border border-slate-700/70">
+          <i class="fa-solid fa-person-running text-sm text-rose-400"></i>
+          <span>下肢</span>
+        </button>
+        <button onclick="setCategoryFilter('核心／暖身')" data-cat="核心／暖身" class="cat-pill py-2.5 px-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 bg-slate-800/90 text-slate-300 border border-slate-700/70">
+          <i class="fa-solid fa-fire-flame-curved text-sm text-emerald-400"></i>
+          <span>核心/暖身</span>
+        </button>
+      </div>
+
+      <!-- Search & Add New Exercise Bar -->
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input id="exerciseSearch" type="text" oninput="renderExercises()" placeholder="搜尋動作、器材或錦囊關鍵字..." class="w-full pl-9 pr-3 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-500">
+        </div>
+        <button onclick="openNewExerciseModal()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-amber-400 whitespace-nowrap flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i>
+          <span>新增動作</span>
+        </button>
+      </div>
+
+      <!-- Exercise Cards Container -->
+      <div id="exerciseListContainer" class="space-y-3 pb-4"></div>
+    </section>
+
+    <!-- ==================== TAB 2: 今日紀錄 (快記與覆盤) ==================== -->
+    <section id="tab-log" class="space-y-4 hidden">
+      <!-- Top Session Config Card -->
+      <div class="glass-card rounded-2xl p-4 space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-bolt text-amber-400"></i>
+            <span id="logFormModeTitle">新增訓練與覆盤紀錄</span>
+          </h2>
+          <button id="cancelEditSessionBtn" onclick="resetLogForm()" class="hidden text-xs text-rose-400 hover:underline">
+            取消編輯舊紀錄
+          </button>
+        </div>
+
+        <!-- Date & Type Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">📍 訓練日期</label>
+            <input id="logDate" type="date" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-white focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">🏷️ 訓練模式</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="typeBtnCoach" onclick="setSessionType('教練課 (Emma)')" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 bg-amber-500/20 border-amber-500 text-amber-300">
+                <i class="fa-solid fa-user-graduate"></i>
+                <span>教練課</span>
+              </button>
+              <button type="button" id="typeBtnSelf" onclick="setSessionType('自主訓練')" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 bg-slate-900 border-slate-700 text-slate-400">
+                <i class="fa-solid fa-seedling"></i>
+                <span>自主訓練</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- One-Liner Input -->
+        <div>
+          <label class="block text-[11px] font-semibold text-amber-300 mb-1">
+            ✦ 今天只留一句（今天我想記住／給自己的肯定）
+          </label>
+          <input id="logOneLiner" type="text" placeholder="例如：今天第一次重訓自主訓練，讚讚！或 腿推突破140lbs！" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500">
+        </div>
+      </div>
+
+      <!-- Active Exercises in Today's Workout -->
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check text-emerald-400"></i>
+              今日訓練動作明細
+            </h3>
+            <p class="text-[11px] text-slate-400">可為同一動作新增多組不同重量（如第1組熱身、第2~3組加重）</p>
+          </div>
+          <button onclick="switchTab('exercises')" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-plus"></i>
+            <span>從選單加動作</span>
+          </button>
+        </div>
+
+        <!-- Quick Add Dropdown -->
+        <div class="flex gap-2 pt-1">
+          <select id="quickAddExerciseSelect" class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500">
+            <option value="">-- 快速選擇一個動作加入 (自動帶入上次重量) --</option>
+          </select>
+          <button onclick="quickAddFromDropdown()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold whitespace-nowrap">
+            加入
+          </button>
+        </div>
+
+        <!-- Logged Exercises Container -->
+        <div id="activeWorkoutExercises" class="space-y-3 pt-2"></div>
+      </div>
+
+      <!-- Light Reflection Section (不用寫完。有東西值得留下，就寫。) -->
+      <div class="glass-card rounded-2xl p-4 space-y-3 border border-indigo-500/20">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-brain text-purple-400"></i>
+              運動覆盤與身體覺察
+            </h3>
+            <p class="text-[11px] text-amber-300/90 font-medium mt-0.5">
+              「不用寫完。有東西值得留下，就寫。」
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-1">
+          <!-- Field 1: 學到的動作／器材機關 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-200 mb-1 flex items-center gap-1.5">
+              <span>🧠 今天學到的動作／知識／器材機關</span>
+            </label>
+            <textarea id="refLearned" rows="2" placeholder="怎麼做？關鍵是什麼？右手把手怎麼開關？常見錯誤？" class="w-full p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"></textarea>
+          </div>
+
+          <!-- Field 2: 對自己身體的發現 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-200 mb-1 flex items-center gap-1.5">
+              <span>👤 今天對自己身體的發現（我感覺到／我發現）</span>
+            </label>
+            <textarea id="refBody" rows="2" placeholder="意念放哪裡更有感？骨盆穩定度？哪裡痠或發力特別順？" class="w-full p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"></textarea>
+          </div>
+
+          <!-- Field 3: 還說不清楚／下次想問 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-200 mb-1 flex items-center gap-1.5">
+              <span>❓ 我還說不清楚的是／下次想記得或想問教練</span>
+            </label>
+            <textarea id="refQuestion" rows="2" placeholder="填寫後會自動整理到「成長與成就」分頁的【待問教練清單】喔！" class="w-full p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Workout Button -->
+      <button onclick="saveWorkoutSession()" class="w-full py-3.5 rounded-2xl gold-gradient text-slate-950 font-extrabold text-sm shadow-xl shadow-amber-500/20 hover:opacity-95 active:scale-[0.99] transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span id="saveSessionBtnText">儲存今日訓練紀錄</span>
+      </button>
+    </section>
+
+    <!-- ==================== TAB 3: 成長與成就 (視覺化進展) ==================== -->
+    <section id="tab-progress" class="space-y-4 hidden">
+      <!-- Top Stats Grid -->
+      <div class="grid grid-cols-3 gap-2.5">
+        <div class="glass-card rounded-2xl p-3.5 text-center border-b-2 border-b-amber-500">
+          <div class="text-[11px] text-slate-400 font-medium">累積總訓練</div>
+          <div class="text-2xl font-black text-white mt-1"><span id="statTotalSessions">0</span> <span class="text-xs font-normal text-slate-400">堂</span></div>
+          <div class="text-[10px] text-amber-400 mt-0.5" id="statCoachCount">教練課 0 堂</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 text-center border-b-2 border-b-emerald-500">
+          <div class="text-[11px] text-slate-400 font-medium">自主訓練里程碑</div>
+          <div class="text-2xl font-black text-emerald-400 mt-1"><span id="statSelfSessions">0</span> <span class="text-xs font-normal text-slate-400">次</span></div>
+          <div class="text-[10px] text-emerald-300/80 mt-0.5">獨立開練超棒！</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 text-center border-b-2 border-b-rose-500">
+          <div class="text-[11px] text-slate-400 font-medium">主力腿推紀錄</div>
+          <div class="text-2xl font-black text-rose-400 mt-1"><span id="statLegPressPR">140</span> <span class="text-xs font-normal text-slate-400">lbs</span></div>
+          <div class="text-[10px] text-rose-300/80 mt-0.5">起點 80 lbs (+75%)</div>
+        </div>
+      </div>
+
+      <!-- Progression Chart Card -->
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-chart-line text-amber-400"></i>
+              動作力量推進曲線
+            </h3>
+            <p class="text-[11px] text-slate-400">追蹤每次訓練的最高重量與訓練容量進展</p>
+          </div>
+          <select id="chartExerciseSelect" onchange="renderProgressionChart()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-amber-300 focus:outline-none focus:border-amber-500">
+          </select>
+        </div>
+
+        <!-- SVG Chart Container -->
+        <div id="chartContainer" class="w-full h-52 bg-slate-900/70 rounded-xl p-3 border border-slate-800 flex items-center justify-center relative">
+        </div>
+
+        <!-- Exercise History Mini Table -->
+        <div id="chartHistoryPills" class="flex gap-2 overflow-x-auto pb-1 pt-1"></div>
+      </div>
+
+      <!-- Visual Workout Footprint / Calendar Wall -->
+      <div class="glass-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-award text-emerald-400"></i>
+              訓練打卡成就軌跡
+            </h3>
+            <p class="text-[11px] text-slate-400">每一次流汗與覆盤都算數</p>
+          </div>
+          <div class="flex items-center gap-3 text-[11px]">
+            <span class="flex items-center gap-1 text-amber-300"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>教練課</span>
+            <span class="flex items-center gap-1 text-emerald-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>自主訓練</span>
+          </div>
+        </div>
+        <div id="footprintTimeline" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+      </div>
+
+      <!-- Questions for Coach / Next Time Reminders -->
+      <div class="glass-card rounded-2xl p-4 space-y-2.5 border-l-4 border-l-purple-500">
+        <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-question text-purple-400"></i>
+          下次想記得／想問教練錦囊盒
+        </h3>
+        <p class="text-[11px] text-slate-400">整理自你每次覆盤寫下的「還說不清楚／下次想試」與核心發現</p>
+        <div id="questionsListContainer" class="space-y-2 pt-1"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: 歷史覆盤 (過往紀錄查閱) ==================== -->
+    <section id="tab-history" class="space-y-4 hidden">
+      <!-- Filter Row -->
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex gap-1.5">
+          <button onclick="setHistoryFilter('全部')" data-hcat="全部" class="hist-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950">全部</button>
+          <button onclick="setHistoryFilter('教練課 (Emma)')" data-hcat="教練課 (Emma)" class="hist-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300">🎓 教練課</button>
+          <button onclick="setHistoryFilter('自主訓練')" data-hcat="自主訓練" class="hist-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300">💪 自主訓練</button>
+        </div>
+        <div class="text-xs text-slate-400" id="historyCountLabel">共 7 筆紀錄</div>
+      </div>
+
+      <!-- History Cards Container -->
+      <div id="historyListContainer" class="space-y-3"></div>
+
+      <!-- Data Backup & Restore Card -->
+      <div class="glass-card rounded-2xl p-4 space-y-3 mt-6 border border-slate-800">
+        <h4 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-amber-400"></i>
+          資料備份與管理（儲存在你的手機/瀏覽器中）
+        </h4>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="exportDataJSON()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-download text-amber-400"></i>
+            <span>匯出備份</span>
+          </button>
+          <label class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-upload text-emerald-400"></i>
+            <span>匯入還原</span>
+            <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+          </label>
+          <button onclick="openResetConfirmModal()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/50 text-xs font-semibold text-rose-400 border border-slate-700 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>重置預設</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS & TOAST ==================== -->
+
+  <!-- Edit Cue (錦囊) Modal -->
+  <div id="cueModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md rounded-2xl p-5 space-y-4 border border-slate-700 animate-pop">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-lightbulb text-amber-400"></i>
+          <span id="cueModalTitle">編輯專屬錦囊</span>
+        </h3>
+        <button onclick="closeCueModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400">
+        把器材把手怎麼開關、椅墊高度、或是發力意念記在這裡，站在器材前一眼就能看到！
+      </p>
+      <textarea id="cueModalTextarea" rows="5" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white leading-relaxed focus:outline-none focus:border-amber-500"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeCueModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">取消</button>
+        <button onclick="saveCueModal()" class="px-4 py-2 rounded-xl gold-gradient text-xs font-bold text-slate-950">儲存錦囊</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Custom Exercise Modal -->
+  <div id="newExerciseModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md rounded-2xl p-5 space-y-4 border border-slate-700 animate-pop">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-amber-400"></i>
+          <span>新增專屬訓練動作</span>
+        </h3>
+        <button onclick="closeNewExerciseModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-300 mb-1 font-semibold">動作／器材名稱</label>
+          <input id="newExName" type="text" placeholder="例如：啞鈴划船、羅馬椅背伸展..." class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1 font-semibold">部位分類</label>
+            <select id="newExCat" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white">
+              <option value="上肢">上肢</option>
+              <option value="下肢">下肢</option>
+              <option value="核心／暖身">核心／暖身</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1 font-semibold">計量單位</label>
+            <select id="newExUnit" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white">
+              <option value="lbs">lbs (磅 - 插銷/Cable)</option>
+              <option value="kg">kg (公斤 - 外掛/啞鈴)</option>
+              <option value="LR次">LR次 (左右各幾次)</option>
+              <option value="次">次 (徒手次數)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1 font-semibold">部位子標籤（選填）</label>
+          <input id="newExSub" type="text" placeholder="例如：臀腿、胸/肩、背部..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1 font-semibold">💡 器材設定與動作關鍵錦囊</label>
+          <textarea id="newExCue" rows="3" placeholder="把手怎麼調？意念放哪裡？常見錯誤？" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white"></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeNewExerciseModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">取消</button>
+        <button onclick="saveNewExercise()" class="px-4 py-2 rounded-xl gold-gradient text-xs font-bold text-slate-950">新增動作</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div id="resetModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700 animate-pop text-center">
+      <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+      </div>
+      <h3 class="text-base font-bold text-white">確定要重置回預設資料嗎？</h3>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        這會將資料恢復為初始內建的 7 筆訓練紀錄（2026/09/13 ~ 11/07）與 15 項預設動作錦囊。
+      </p>
+      <div class="flex gap-2 justify-center pt-1">
+        <button onclick="closeResetConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">取消</button>
+        <button onclick="confirmResetData()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white">確定重置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBox" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div class="px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-amber-500/50 shadow-2xl text-xs font-bold text-amber-300 flex items-center gap-2 whitespace-nowrap animate-pop">
+      <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+      <span id="toastMessage">已儲存！</span>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/90">
+    <div class="max-w-xl mx-auto grid grid-cols-4 px-2 py-1.5">
+      <button onclick="switchTab('exercises')" data-tab="exercises" class="nav-btn py-1.5 flex flex-col items-center justify-center gap-1 text-amber-400">
+        <i class="fa-solid fa-dumbbell text-base"></i>
+        <span class="text-[11px] font-bold">動作選單</span>
+      </button>
+      <button onclick="switchTab('log')" data-tab="log" class="nav-btn py-1.5 flex flex-col items-center justify-center gap-1 text-slate-400 relative">
+        <i class="fa-solid fa-pen-to-square text-base"></i>
+        <span class="text-[11px] font-bold">今日紀錄</span>
+        <span id="navCartDot" class="hidden w-2 h-2 rounded-full bg-amber-400 absolute top-1.5 right-7"></span>
+      </button>
+      <button onclick="switchTab('progress')" data-tab="progress" class="nav-btn py-1.5 flex flex-col items-center justify-center gap-1 text-slate-400">
+        <i class="fa-solid fa-chart-line text-base"></i>
+        <span class="text-[11px] font-bold">成長成就</span>
+      </button>
+      <button onclick="switchTab('history')" data-tab="history" class="nav-btn py-1.5 flex flex-col items-center justify-center gap-1 text-slate-400">
+        <i class="fa-solid fa-book-open text-base"></i>
+        <span class="text-[11px] font-bold">歷史覆盤</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== APPLICATION LOGIC ==================== -->
+  <script>
+    const STORAGE_KEY = 'jiahui_fitness_tracker_v1';
+
+    // 1. 內建 15 項專屬動作與器材機關錦囊
+    const DEFAULT_EXERCISES = [
+      {
+        id: 'ex_chest_press_pin',
+        name: '胸推（插銷式）',
+        category: '上肢',
+        subCategory: '胸／肩',
+        unit: 'lbs',
+        cues: '⚠️ 教練提醒：注意手肘位置，不要過度外展或掉下來。可先用 20~30 lbs 熱身找感覺，再推進至 40 lbs。'
+      },
+      {
+        id: 'ex_chest_press_plate',
+        name: '外掛式臥胸推',
+        category: '上肢',
+        subCategory: '胸／肩',
+        unit: 'kg',
+        cues: '🔧 器材提示：先從 0 kg（不掛槓片空槓）做 15 下熱身找推舉軌跡，再外掛 2.5 kg 槓片。'
+      },
+      {
+        id: 'ex_db_shoulder_squat',
+        name: '啞鈴肩推＋深蹲（LR移動）',
+        category: '上肢',
+        subCategory: '全身／肩部穩定',
+        unit: 'kg',
+        cues: '🧠 身體發現：肩推時，「意念放在肩膀」可以增加肩膀穩定與感受，動到該動的地方！'
+      },
+      {
+        id: 'ex_seated_row_pin',
+        name: '坐姿划船（插銷式）',
+        category: '上肢',
+        subCategory: '背部',
+        unit: 'lbs',
+        cues: '💪 發力關鍵：穩定感受肩胛骨後收與背部發力，注意肩膀放鬆不聳肩。目前穩定做 40~50 lbs。'
+      },
+      {
+        id: 'ex_seated_row_plate',
+        name: '外掛式坐姿划船',
+        category: '上肢',
+        subCategory: '背部',
+        unit: 'kg',
+        cues: '🔧 器材提示：先從 0 kg（空槓）熱身 15 下啟動背部，再加掛 7.5 kg。'
+      },
+      {
+        id: 'ex_cable_pulldown',
+        name: 'Cable拉背／下拉',
+        category: '上肢',
+        subCategory: '背部',
+        unit: 'lbs',
+        cues: '📌 重量備註：Cable 重量有小數點（常用 37.4 lbs 穩定做 12×3，自主訓練曾挑戰 50.4 lbs × 8 × 2）。'
+      },
+      {
+        id: 'ex_leg_press_pin',
+        name: '大腿推舉／腿推（插銷式）',
+        category: '下肢',
+        subCategory: '臀腿主力',
+        unit: 'lbs',
+        cues: '🔥 主力推進王牌！從 9 月的 80 lbs → 100 lbs → 11 月已推進至 120 lbs × 15 × 2 組 ＋ 140 lbs × 12！'
+      },
+      {
+        id: 'ex_leg_press_plate',
+        name: '外掛式腿推',
+        category: '下肢',
+        subCategory: '臀腿',
+        unit: 'kg',
+        cues: '🔧 器材機關：坐下腳踩髖寬。\n① 開始：腳往前蹬一下 → 右手把手「內收」開始動作。\n② 結束：腳往前一蹬 → 右手「打開」把手固定機械。\n⚠️ 關鍵：無論打開或固定，腳都要先蹬一下！'
+      },
+      {
+        id: 'ex_hip_thrust_plate',
+        name: '外掛式臀推',
+        category: '下肢',
+        subCategory: '臀部',
+        unit: 'kg',
+        cues: '🔧 做法與關鍵：半躺，後背扣住背墊，腳跟對齊下排線、踩髖寬，上排軟墊放在髖上。\n🧠 發力意念：臀往上頂時，「膝蓋有種往前用力的感覺」上下動作。結束時右手放回把手固定。'
+      },
+      {
+        id: 'ex_hip_abduction',
+        name: '髖外展',
+        category: '下肢',
+        subCategory: '臀中肌／髖部',
+        unit: 'lbs',
+        cues: '🔧 器材機關：右手圈圈放到最上即可使用（10/18 自主訓練問過場內教練）！重量已從 50 lbs 推進到 80 lbs。'
+      },
+      {
+        id: 'ex_knee_extension',
+        name: '膝伸展',
+        category: '下肢',
+        subCategory: '大腿前側',
+        unit: 'lbs',
+        cues: '💪 穩定控制大腿前側發力與離心下放，已從 30 lbs 提升至 40 lbs × 12 × 3。'
+      },
+      {
+        id: 'ex_lunge',
+        name: '弓箭步',
+        category: '下肢',
+        subCategory: '徒手臀腿／平衡',
+        unit: 'LR次',
+        cues: '左右腳（LR）分開計算次數（如 LR 各 6 下 × 3 組），注意核心與骨盆穩定。'
+      },
+      {
+        id: 'ex_crunch_machine',
+        name: '捲腹（器材）',
+        category: '核心／暖身',
+        subCategory: '核心腹肌',
+        unit: 'lbs',
+        cues: '自主訓練與教練課常搭配的核心訓練，穩定使用 40 lbs × 15 × 3 組。'
+      },
+      {
+        id: 'ex_mountain_climber',
+        name: '登山式',
+        category: '核心／暖身',
+        subCategory: '核心穩定／捲腹',
+        unit: '次',
+        cues: '🧠 做法：雙手撐在固定高度櫃/椅上，雙腳往後伸直如棒式撐穩。左右腳交換蹬地往前，膝蓋往手肘方向快速跑。\n⚠️ 我的常見錯誤：忘記捲腹！過程中要記得「捲腹」，讓軀幹有點小彎曲的感覺。'
+      },
+      {
+        id: 'ex_hurdle_thoracic',
+        name: '跨欄／胸椎扭轉',
+        category: '核心／暖身',
+        subCategory: '活動度／骨盆穩定',
+        unit: 'LR次',
+        cues: '🧠 身體發現：胸椎扭轉鍛鍊時，「雙手放髂上」，方便注意骨盆是否穩定！跨欄常用 LR 12 × 3。'
+      }
+    ];
+
+    // 2. 內建 7 筆真實歷史訓練與覆盤紀錄
+    const DEFAULT_SESSIONS = [
+      {
+        id: 'sess_20260913',
+        date: '2026-09-13',
+        type: '教練課 (Emma)',
+        oneLiner: '回歸訓練！找回身體發力節奏',
+        exercises: [
+          { exerciseId: 'ex_chest_press_pin', sets: [{ weight: 30, reps: 15, count: 3 }], note: '⚠️手肘注意' },
+          { exerciseId: 'ex_leg_press_pin', sets: [{ weight: 80, reps: 15, count: 3 }], note: '' },
+          { exerciseId: 'ex_seated_row_pin', sets: [{ weight: 40, reps: 15, count: 3 }], note: '' },
+          { exerciseId: 'ex_lunge', sets: [{ weight: 0, reps: 6, count: 3 }], note: 'LR 各6*3' }
+        ],
+        refLearned: '胸推時教練提醒注意手肘位置（⚠️手肘）。',
+        refBody: '回歸訓練第一堂，全身肌群重新喚醒。',
+        refQuestion: ''
+      },
+      {
+        id: 'sess_20260919',
+        date: '2026-09-19',
+        type: '教練課 (Emma)',
+        oneLiner: '大腿推舉推進到 100 lbs！',
+        exercises: [
+          { exerciseId: 'ex_seated_row_pin', sets: [{ weight: 40, reps: 12, count: 3 }], note: '' },
+          { exerciseId: 'ex_hurdle_thoracic', sets: [{ weight: 0, reps: 12, count: 3 }], note: '跨欄 LR 12*3' },
+          { exerciseId: 'ex_leg_press_pin', sets: [{ weight: 100, reps: 15, count: 1 }], note: '' }
+        ],
+        refLearned: '加入跨欄 LR 12*3 活動髖關節。',
+        refBody: '大腿推舉從上週 80 lbs 提升到 100 lbs * 15。',
+        refQuestion: ''
+      },
+      {
+        id: 'sess_20261011',
+        date: '2026-10-11',
+        type: '教練課 (Emma)',
+        oneLiner: '解鎖髖外展與膝伸展，划船加到 50 lbs！',
+        exercises: [
+          { exerciseId: 'ex_chest_press_pin', sets: [{ weight: 20, reps: 15, count: 1 }, { weight: 30, reps: 12, count: 2 }], note: '' },
+          { exerciseId: 'ex_leg_press_pin', sets: [{ weight: 100, reps: 15, count: 1 }, { weight: 100, reps: 12, count: 2 }], note: '' },
+          { exerciseId: 'ex_hip_abduction', sets: [{ weight: 50, reps: 15, count: 2 }, { weight: 65, reps: 15, count: 1 }], note: '' },
+          { exerciseId: 'ex_seated_row_pin', sets: [{ weight: 40, reps: 15, count: 1 }, { weight: 50, reps: 12, count: 2 }], note: '' },
+          { exerciseId: 'ex_knee_extension', sets: [{ weight: 30, reps: 15, count: 3 }], note: '' }
+        ],
+        refLearned: '同一個動作可以先用較輕重量熱身 15 下，第 2~3 組再往上加重量。',
+        refBody: '髖外展加到 65 lbs、坐姿划船加到 50 lbs 都能穩定完成。',
+        refQuestion: ''
+      },
+      {
+        id: 'sess_20261018',
+        date: '2026-10-18',
+        type: '自主訓練',
+        oneLiner: '今天第一次重訓自主訓練，讚讚！',
+        exercises: [
+          { exerciseId: 'ex_chest_press_pin', sets: [{ weight: 20, reps: 15, count: 1 }, { weight: 30, reps: 12, count: 2 }], note: '複習上次課表' },
+          { exerciseId: 'ex_leg_press_pin', sets: [{ weight: 100, reps: 15, count: 1 }, { weight: 100, reps: 12, count: 2 }], note: '' },
+          { exerciseId: 'ex_hip_abduction', sets: [{ weight: 50, reps: 15, count: 2 }, { weight: 65, reps: 15, count: 1 }], note: '右手圈圈放到最上' },
+          { exerciseId: 'ex_seated_row_pin', sets: [{ weight: 40, reps: 15, count: 1 }, { weight: 50, reps: 12, count: 2 }], note: '' },
+          { exerciseId: 'ex_knee_extension', sets: [{ weight: 30, reps: 15, count: 3 }], note: '' },
+          { exerciseId: 'ex_crunch_machine', sets: [{ weight: 40, reps: 15, count: 3 }], note: '自主加練' },
+          { exerciseId: 'ex_cable_pulldown', sets: [{ weight: 37.4, reps: 12, count: 1 }, { weight: 50.4, reps: 8, count: 2 }], note: '自主挑戰 50.4 lbs' }
+        ],
+        refLearned: '使用髖外展器材時，右手圈圈放到最上即可使用（主動問了場內教練！）。',
+        refBody: '第一次自己進健身房照著上次課表完成，還額外加練了捲腹 40lbs 與 Cable 下拉！',
+        refQuestion: 'Cable 下拉 50.4 lbs 做 8 下時背部與手臂的發力比例下次可以再確認。'
+      },
+      {
+        id: 'sess_20261026',
+        date: '2026-10-26',
+        type: '教練課 (Emma)',
+        oneLiner: '外掛式器材大解鎖：腿推、臀推、臥胸推、坐姿划船',
+        exercises: [
+          { exerciseId: 'ex_chest_press_plate', sets: [{ weight: 0, reps: 15, count: 1 }, { weight: 2.5, reps: 12, count: 1 }, { weight: 2.5, reps: 8, count: 1 }], note: '' },
+          { exerciseId: 'ex_leg_press_plate', sets: [{ weight: 20, reps: 15, count: 1 }, { weight: 30, reps: 15, count: 1 }, { weight: 40, reps: 15, count: 1 }], note: '' },
+          { exerciseId: 'ex_hip_thrust_plate', sets: [{ weight: 0, reps: 12, count: 2 }, { weight: 2.5, reps: 12, count: 1 }], note: '' },
+          { exerciseId: 'ex_seated_row_plate', sets: [{ weight: 0, reps: 15, count: 1 }, { weight: 7.5, reps: 12, count: 2 }], note: '' }
+        ],
+        refLearned: '【外掛式腿推】坐下腳踩髖寬，腳往前蹬，右手把手控制機械固定與否（打開=固定；內收=開始做；結束=打開固定。無論打開或固定，腳都要蹬一下！）。\n【外掛式臀推】半躺後背扣住背墊，腳跟對齊下排線踩髖寬，上排軟墊放髖上，結束時右手放回把手固定。',
+        refBody: '外掛式臀推往上頂時，膝蓋有種往前用力的感覺，臀部感受很明確。',
+        refQuestion: '下次自主訓練時可以實際操作看看外掛式腿推跟臀推的把手卡榫！'
+      },
+      {
+        id: 'sess_20261101',
+        date: '2026-11-01',
+        type: '教練課 (Emma)',
+        oneLiner: '核心穩定度的鍛鍊：胸推上 40 lbs、肩推意念與胸椎扭轉',
+        exercises: [
+          { exerciseId: 'ex_chest_press_pin', sets: [{ weight: 30, reps: 15, count: 1 }, { weight: 40, reps: 12, count: 2 }], note: '突破 40 lbs' },
+          { exerciseId: 'ex_db_shoulder_squat', sets: [{ weight: 3, reps: 12, count: 1 }, { weight: 4, reps: 12, count: 2 }], note: 'LR移動' },
+          { exerciseId: 'ex_mountain_climber', sets: [{ weight: 0, reps: 12, count: 3 }], note: '過程中要捲腹' },
+          { exerciseId: 'ex_hurdle_thoracic', sets: [{ weight: 0, reps: 10, count: 3 }], note: '胸椎扭轉＋按摩胸腔' }
+        ],
+        refLearned: '【登山者式】雙手撐在固定高度的電視櫃上，雙腳往後伸直如棒式撐穩，右腳折膝往手肘方向為起始。左右腳交換蹬地往前，膝蓋往手肘方向、捲腹用力快速跑。\n⚠️ 常見錯誤／我的錯誤：忘記捲腹（過程中軀幹要有點小彎曲的感覺）。',
+        refBody: '1. 肩推時，意念放在肩膀可以增加肩膀穩定與感受，動到該動的地方。\n2. 胸椎扭轉鍛鍊時，雙手放髂上，方便注意骨盆是否穩定。',
+        refQuestion: ''
+      },
+      {
+        id: 'sess_20261107',
+        date: '2026-11-07',
+        type: '教練課 (Emma)',
+        oneLiner: '大腿推舉突破 140 lbs & 髖外展突破 80 lbs！',
+        exercises: [
+          { exerciseId: 'ex_leg_press_pin', sets: [{ weight: 120, reps: 15, count: 2 }, { weight: 140, reps: 12, count: 1 }], note: '👑 突破 140 lbs' },
+          { exerciseId: 'ex_knee_extension', sets: [{ weight: 40, reps: 12, count: 3 }], note: '👑 提升至 40 lbs' },
+          { exerciseId: 'ex_hip_abduction', sets: [{ weight: 65, reps: 15, count: 2 }, { weight: 80, reps: 12, count: 1 }], note: '👑 突破 80 lbs' },
+          { exerciseId: 'ex_cable_pulldown', sets: [{ weight: 37.4, reps: 12, count: 3 }], note: '' },
+          { exerciseId: 'ex_crunch_machine', sets: [{ weight: 40, reps: 15, count: 3 }], note: '' }
+        ],
+        refLearned: '下肢三個動作（腿推 140lbs、膝伸展 40lbs、髖外展 80lbs）全面推進新重量！',
+        refBody: '腿部力量比九月剛回歸時成長非常多，120 lbs 可以穩定做 15 下兩組再衝 140 lbs。',
+        refQuestion: ''
+      }
+    ];
+
+    // App State
+    let appData = {
+      exercises: [],
+      sessions: []
+    };
+
+    let currentCategoryFilter = '全部';
+    let currentHistoryFilter = '全部';
+    let editingCueExerciseId = null;
+
+    // Active Workout Log Draft State
+    let activeLog = {
+      editingSessionId: null,
+      type: '自主訓練',
+      exercises: [] // [{ exerciseId, sets: [{weight, reps, count}], note }]
+    };
+
+    // Initialize App on Load
+    window.onload = function() {
+      loadAppData();
+      initDateInput();
+      populateQuickAddDropdown();
+      populateChartDropdown();
+      renderAll();
+    };
+
+    function loadAppData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.exercises) && Array.isArray(parsed.sessions)) {
+            appData = parsed;
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load from localStorage:', e);
+      }
+      // Fallback to default pre-loaded data
+      appData = {
+        exercises: JSON.parse(JSON.stringify(DEFAULT_EXERCISES)),
+        sessions: JSON.parse(JSON.stringify(DEFAULT_SESSIONS))
+      };
+      saveAppData();
+    }
+
+    function saveAppData() {
+      try {
+        // Sort sessions chronologically descending or ascending when needed
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      } catch (e) {
+        console.error('Failed to save to localStorage:', e);
+      }
+    }
+
+    function initDateInput() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('logDate').value = today;
+      setSessionType('自主訓練');
+    }
+
+    // ==================== HELPER FUNCTIONS FOR EXERCISE STATS ====================
+    function getExerciseById(exId) {
+      return appData.exercises.find(e => e.id === exId) || {
+        id: exId,
+        name: '未知動作',
+        category: '其他',
+        subCategory: '',
+        unit: 'lbs',
+        cues: ''
+      };
+    }
+
+    // Get sorted sessions (newest first)
+    function getSortedSessionsDesc() {
+      return [...appData.sessions].sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    // Get last session record and PR for an exercise
+    function getExerciseHistoryStats(exId) {
+      const sorted = getSortedSessionsDesc();
+      let lastRecord = null;
+      let maxWeight = 0;
+      let maxRepsAtZero = 0;
+      let totalAppearances = 0;
+
+      for (const sess of sorted) {
+        const found = sess.exercises.find(item => item.exerciseId === exId);
+        if (found && found.sets && found.sets.length > 0) {
+          totalAppearances++;
+          if (!lastRecord) {
+            lastRecord = {
+              date: sess.date,
+              type: sess.type,
+              sets: found.sets,
+              note: found.note || ''
+            };
+          }
+          for (const s of found.sets) {
+            const w = parseFloat(s.weight) || 0;
+            const r = parseInt(s.reps) || 0;
+            if (w > maxWeight) maxWeight = w;
+            if (r > maxRepsAtZero) maxRepsAtZero = r;
+          }
+        }
+      }
+
+      return {
+        lastRecord,
+        maxWeight,
+        maxRepsAtZero,
+        totalAppearances
+      };
+    }
+
+    function formatSetsSummary(sets, unit) {
+      if (!sets || sets.length === 0) return '尚無紀錄';
+      return sets.map(s => {
+        const w = parseFloat(s.weight) || 0;
+        const r = s.reps || 0;
+        const c = s.count || 1;
+        if (unit === 'LR次') {
+          return `LR各${r}次×${c}組`;
+        } else if (unit === '次') {
+          return `${r}次×${c}組`;
+        } else {
+          return `${w}${unit}×${r}${c > 1 ? '×' + c + '組' : ''}`;
+        }
+      }).join('、');
+    }
+
+    function formatShortDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
+      return dateStr;
+    }
+
+    // ==================== TAB NAVIGATION ====================
+    function switchTab(tabName) {
+      const tabs = ['exercises', 'log', 'progress', 'history'];
+      tabs.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (t === tabName) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.remove('text-slate-400');
+          btn.classList.add('text-amber-400');
+        } else {
+          btn.classList.add('text-slate-400');
+          btn.classList.remove('text-amber-400');
+        }
+      });
+
+      if (tabName === 'progress') {
+        renderProgressTab();
+      } else if (tabName === 'history') {
+        renderHistoryTab();
+      } else if (tabName === 'exercises') {
+        renderExercises();
+      } else if (tabName === 'log') {
+        renderActiveWorkoutList();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderAll() {
+      updateCategoryCounts();
+      renderExercises();
+      renderActiveWorkoutList();
+      renderProgressTab();
+      renderHistoryTab();
+      updateCartBadges();
+    }
+
+    // ==================== TAB 1: RENDER EXERCISES ====================
+    function updateCategoryCounts() {
+      const counts = {
+        '全部': appData.exercises.length,
+        '上肢': appData.exercises.filter(e => e.category === '上肢').length,
+        '下肢': appData.exercises.filter(e => e.category === '下肢').length,
+        '核心／暖身': appData.exercises.filter(e => e.category === '核心／暖身').length
+      };
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        const cat = btn.dataset.cat;
+        const span = btn.querySelector('span');
+        const label = cat === '核心／暖身' ? '核心/暖身' : cat;
+        span.textContent = `${label} (${counts[cat] || 0})`;
+      });
+    }
+
+    function setCategoryFilter(cat) {
+      currentCategoryFilter = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = 'cat-pill py-2.5 px-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20';
+        } else {
+          btn.className = 'cat-pill py-2.5 px-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 bg-slate-800/90 text-slate-300 border border-slate-700/70';
+        }
+      });
+      renderExercises();
+    }
+
+    function renderExercises() {
+      const container = document.getElementById('exerciseListContainer');
+      const query = (document.getElementById('exerciseSearch').value || '').trim().toLowerCase();
+
+      const filtered = appData.exercises.filter(ex => {
+        const matchCat = currentCategoryFilter === '全部' || ex.category === currentCategoryFilter;
+        const matchQuery = !query ||
+          ex.name.toLowerCase().includes(query) ||
+          (ex.subCategory && ex.subCategory.toLowerCase().includes(query)) ||
+          (ex.cues && ex.cues.toLowerCase().includes(query));
+        return matchCat && matchQuery;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card rounded-2xl p-8 text-center space-y-2">
+            <i class="fa-solid fa-magnifying-glass text-2xl text-slate-500"></i>
+            <p class="text-sm font-bold text-slate-300">找不到符合的動作</p>
+            <p class="text-xs text-slate-500">試試切換部位分類，或點選右上角「新增動作」</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(ex => {
+        const stats = getExerciseHistoryStats(ex.id);
+        const inActiveLog = activeLog.exercises.some(item => item.exerciseId === ex.id);
+
+        let catBadgeColor = 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+        if (ex.category === '下肢') catBadgeColor = 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+        if (ex.category === '核心／暖身') catBadgeColor = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+
+        const lastRecordHtml = stats.lastRecord
+          ? `<div class="flex items-center justify-between gap-2 bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-700/80">
+               <div class="flex items-center gap-1.5 text-xs">
+                 <span class="text-amber-400 font-bold"><i class="fa-regular fa-clock mr-1"></i>上次 (${formatShortDate(stats.lastRecord.date)})：</span>
+                 <span class="text-white font-semibold">${formatSetsSummary(stats.lastRecord.sets, ex.unit)}</span>
+               </div>
+             </div>`
+          : `<div class="text-xs text-slate-500 bg-slate-900/50 px-3 py-2 rounded-xl">尚無歷史紀錄，點擊下方加入開始第一次紀錄！</div>`;
+
+        const prBadgeHtml = (ex.unit === 'lbs' || ex.unit === 'kg') && stats.maxWeight > 0
+          ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30">
+               🏆 最高 ${stats.maxWeight} ${ex.unit}
+             </span>`
+          : `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400">
+               單位：${ex.unit}
+             </span>`;
+
+        return `
+          <div class="glass-card rounded-2xl p-4 space-y-3 transition hover:border-slate-600">
+            <!-- Top Row: Title & Badges -->
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadgeColor}">${ex.category}${ex.subCategory ? ' · ' + ex.subCategory : ''}</span>
+                  ${prBadgeHtml}
+                </div>
+                <h3 class="text-base font-extrabold text-white mt-1.5">${ex.name}</h3>
+              </div>
+              <button onclick="addExerciseToActiveLog('${ex.id}')" class="px-3 py-2 rounded-xl text-xs font-extrabold transition flex items-center gap-1.5 shrink-0 ${inActiveLog ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'gold-gradient text-slate-950 shadow-md shadow-amber-500/15'}">
+                <i class="fa-solid ${inActiveLog ? 'fa-check' : 'fa-plus'}"></i>
+                <span>${inActiveLog ? '已加入今日' : '加入今日訓練'}</span>
+              </button>
+            </div>
+
+            <!-- Last Session Reference -->
+            ${lastRecordHtml}
+
+            <!-- Personal Cues / 專屬錦囊 (器材機關 & 身體覺察) -->
+            <div class="bg-indigo-950/35 border border-indigo-500/25 rounded-xl p-3 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-indigo-300 flex items-center gap-1">
+                  <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                  專屬錦囊（器材設定／動作關鍵）
+                </span>
+                <button onclick="openCueModal('${ex.id}')" class="text-[11px] text-slate-400 hover:text-amber-300 flex items-center gap-1">
+                  <i class="fa-solid fa-pen text-[10px]"></i>
+                  <span>編輯錦囊</span>
+                </button>
+              </div>
+              <p class="text-xs text-slate-200 whitespace-pre-line leading-relaxed">${ex.cues || '點擊右上角「編輯錦囊」記錄器材卡榫位置或發力意念'}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== CUE MODAL & NEW EXERCISE MODAL ====================
+    function openCueModal(exId) {
+      editingCueExerciseId = exId;
+      const ex = getExerciseById(exId);
+      document.getElementById('cueModalTitle').textContent = `編輯錦囊：${ex.name}`;
+      document.getElementById('cueModalTextarea').value = ex.cues || '';
+      const modal = document.getElementById('cueModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCueModal() {
+      editingCueExerciseId = null;
+      const modal = document.getElementById('cueModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveCueModal() {
+      if (!editingCueExerciseId) return;
+      const ex = appData.exercises.find(e => e.id === editingCueExerciseId);
+      if (ex) {
+        ex.cues = document.getElementById('cueModalTextarea').value.trim();
+        saveAppData();
+        renderExercises();
+        renderActiveWorkoutList();
+        showToast('💡 專屬錦囊已更新！');
+      }
+      closeCueModal();
+    }
+
+    function openNewExerciseModal() {
+      document.getElementById('newExName').value = '';
+      document.getElementById('newExSub').value = '';
+      document.getElementById('newExCue').value = '';
+      const modal = document.getElementById('newExerciseModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeNewExerciseModal() {
+      const modal = document.getElementById('newExerciseModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveNewExercise() {
+      const name = document.getElementById('newExName').value.trim();
+      const category = document.getElementById('newExCat').value;
+      const unit = document.getElementById('newExUnit').value;
+      const subCategory = document.getElementById('newExSub').value.trim();
+      const cues = document.getElementById('newExCue').value.trim();
+
+      if (!name) {
+        showToast('⚠️ 請輸入動作或器材名稱');
+        return;
+      }
+
+      const newEx = {
+        id: 'ex_custom_' + Date.now(),
+        name,
+        category,
+        subCategory: subCategory || category,
+        unit,
+        cues: cues || '尚未填寫器材錦囊，可隨時點擊編輯補充！'
+      };
+
+      appData.exercises.push(newEx);
+      saveAppData();
+      populateQuickAddDropdown();
+      populateChartDropdown();
+      updateCategoryCounts();
+      renderExercises();
+      closeNewExerciseModal();
+      showToast(`🎉 已新增「${name}」到動作庫！`);
+    }
+
+    // ==================== TAB 2: ACTIVE WORKOUT LOGGING ====================
+    function setSessionType(type) {
+      activeLog.type = type;
+      const btnCoach = document.getElementById('typeBtnCoach');
+      const btnSelf = document.getElementById('typeBtnSelf');
+      if (type === '教練課 (Emma)') {
+        btnCoach.className = 'py-2.5 px-2 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 bg-amber-500/20 border-amber-500 text-amber-300 shadow-sm';
+        btnSelf.className = 'py-2.5 px-2 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 bg-slate-900 border-slate-700 text-slate-400';
+      } else {
+        btnSelf.className = 'py-2.5 px-2 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-sm';
+        btnCoach.className = 'py-2.5 px-2 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 bg-slate-900 border-slate-700 text-slate-400';
+      }
+    }
+
+    function populateQuickAddDropdown() {
+      const sel = document.getElementById('quickAddExerciseSelect');
+      sel.innerHTML = '<option value="">-- 快速選擇動作加入 (自動帶入上次重量) --</option>' +
+        appData.exercises.map(ex => `<option value="${ex.id}">【${ex.category}】${ex.name} (${ex.unit})</option>`).join('');
+    }
+
+    function quickAddFromDropdown() {
+      const sel = document.getElementById('quickAddExerciseSelect');
+      const exId = sel.value;
+      if (!exId) {
+        showToast('請先從下拉選單選擇一個動作');
+        return;
+      }
+      addExerciseToActiveLog(exId, false);
+      sel.value = '';
+    }
+
+    function addExerciseToActiveLog(exId, showNotification = true) {
+      const existing = activeLog.exercises.find(item => item.exerciseId === exId);
+      const ex = getExerciseById(exId);
+
+      if (existing) {
+        if (showNotification) {
+          showToast(`「${ex.name}」已在今日清單中，可直接調整組數！`);
+          switchTab('log');
+        }
+        return;
+      }
+
+      // Pre-fill sets from the most recent session so the user doesn't have to type from scratch
+      const stats = getExerciseHistoryStats(exId);
+      let defaultSets = [{ weight: 0, reps: 12, count: 3 }];
+      if (stats.lastRecord && stats.lastRecord.sets && stats.lastRecord.sets.length > 0) {
+        defaultSets = JSON.parse(JSON.stringify(stats.lastRecord.sets));
+      }
+
+      activeLog.exercises.push({
+        exerciseId: exId,
+        sets: defaultSets,
+        note: ''
+      });
+
+      updateCartBadges();
+      renderExercises();
+      renderActiveWorkoutList();
+      if (showNotification) {
+        showToast(`➕ 已將「${ex.name}」帶入今日訓練（含上次重量）！`);
+      }
+    }
+
+    function updateCartBadges() {
+      const count = activeLog.exercises.length;
+      const badge = document.getElementById('headerCartBadge');
+      const dot = document.getElementById('navCartDot');
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+        dot.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+        dot.classList.add('hidden');
+      }
+    }
+
+    function renderActiveWorkoutList() {
+      const container = document.getElementById('activeWorkoutExercises');
+
+      if (activeLog.exercises.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-900/60 border border-dashed border-slate-700 rounded-2xl p-6 text-center space-y-2.5">
+            <div class="w-10 h-10 rounded-full bg-slate-800 text-amber-400 flex items-center justify-center mx-auto">
+              <i class="fa-solid fa-dumbbell"></i>
+            </div>
+            <p class="text-xs font-bold text-slate-300">今天還沒加入訓練動作</p>
+            <p class="text-[11px] text-slate-400">可以從上方下拉選單挑選，或到「動作選單」看上次做多重再一鍵加入！</p>
+            <button onclick="switchTab('exercises')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold border border-slate-700">
+              前往動作選單挑動作
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = activeLog.exercises.map((item, exIdx) => {
+        const ex = getExerciseById(item.exerciseId);
+        const stats = getExerciseHistoryStats(item.exerciseId);
+        const isWeightless = ex.unit === '次' || ex.unit === 'LR次';
+
+        // Check if current input unlocks a new PR
+        let isNewPR = false;
+        if (!isWeightless && stats.maxWeight > 0) {
+          for (const s of item.sets) {
+            if ((parseFloat(s.weight) || 0) > stats.maxWeight) {
+              isNewPR = true;
+              break;
+            }
+          }
+        }
+
+        const setsRowsHtml = item.sets.map((s, setIdx) => `
+          <div class="grid grid-cols-12 gap-1.5 items-center bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+            <div class="col-span-1 text-[11px] font-bold text-slate-400 text-center">
+              #${setIdx + 1}
+            </div>
+            <div class="col-span-4">
+              <div class="relative">
+                <input type="number" step="0.1" value="${s.weight}" oninput="updateSetField(${exIdx}, ${setIdx}, 'weight', this.value)" ${isWeightless ? 'disabled' : ''} class="w-full pl-2.5 pr-8 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500 ${isWeightless ? 'opacity-40' : ''}">
+                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">${ex.unit}</span>
+              </div>
+            </div>
+            <div class="col-span-3">
+              <div class="relative">
+                <input type="number" value="${s.reps}" oninput="updateSetField(${exIdx}, ${setIdx}, 'reps', this.value)" class="w-full pl-2 pr-6 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">下</span>
+              </div>
+            </div>
+            <div class="col-span-3">
+              <div class="relative">
+                <input type="number" value="${s.count}" oninput="updateSetField(${exIdx}, ${setIdx}, 'count', this.value)" class="w-full pl-2 pr-6 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">組</span>
+              </div>
+            </div>
+            <div class="col-span-1 flex justify-end">
+              <button onclick="removeSetRow(${exIdx}, ${setIdx})" class="text-slate-500 hover:text-rose-400 p-1" title="刪除此組">
+                <i class="fa-solid fa-minus-circle text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        return `
+          <div class="bg-slate-900/90 border border-slate-700/90 rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="text-sm font-extrabold text-white">${ex.name}</h4>
+                  ${isNewPR ? `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 animate-pulse">👑 突破個人最佳 PR！</span>` : ''}
+                </div>
+                ${stats.lastRecord ? `<p class="text-[11px] text-slate-400 mt-0.5">上次 (${formatShortDate(stats.lastRecord.date)})：${formatSetsSummary(stats.lastRecord.sets, ex.unit)}</p>` : ''}
+              </div>
+              <button onclick="removeExerciseFromActiveLog(${exIdx})" class="text-slate-400 hover:text-rose-400 text-xs px-2 py-1">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+
+            <!-- Quick Cue Reminder -->
+            <div class="text-[11px] text-indigo-200 bg-indigo-950/40 border border-indigo-500/20 px-2.5 py-1.5 rounded-lg">
+              <i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i>${ex.cues}
+            </div>
+
+            <!-- Sets Input Rows -->
+            <div class="space-y-1.5">
+              ${setsRowsHtml}
+            </div>
+
+            <!-- Bottom Row: Add Set & Short Note -->
+            <div class="flex items-center gap-2 pt-1">
+              <button onclick="addSetRow(${exIdx})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] font-bold border border-slate-700 shrink-0">
+                <i class="fa-solid fa-plus mr-1"></i>加一組不同重量
+              </button>
+              <input type="text" value="${item.note || ''}" oninput="updateExerciseNote(${exIdx}, this.value)" placeholder="單項備註（如：⚠️手肘、右手圈圈最上）" class="flex-1 px-2.5 py-1.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-amber-500">
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateSetField(exIdx, setIdx, field, val) {
+      if (!activeLog.exercises[exIdx] || !activeLog.exercises[exIdx].sets[setIdx]) return;
+      activeLog.exercises[exIdx].sets[setIdx][field] = field === 'weight' ? (parseFloat(val) || 0) : (parseInt(val) || 0);
+      // Re-render only if weight changed to trigger PR badge check smoothly
+      if (field === 'weight') {
+        // Check PR without losing focus
+      }
+    }
+
+    function addSetRow(exIdx) {
+      const sets = activeLog.exercises[exIdx].sets;
+      const lastSet = sets.length > 0 ? sets[sets.length - 1] : { weight: 20, reps: 12, count: 1 };
+      sets.push({
+        weight: lastSet.weight,
+        reps: lastSet.reps,
+        count: 1
+      });
+      renderActiveWorkoutList();
+    }
+
+    function removeSetRow(exIdx, setIdx) {
+      const sets = activeLog.exercises[exIdx].sets;
+      if (sets.length <= 1) {
+        removeExerciseFromActiveLog(exIdx);
+        return;
+      }
+      sets.splice(setIdx, 1);
+      renderActiveWorkoutList();
+    }
+
+    function updateExerciseNote(exIdx, val) {
+      if (activeLog.exercises[exIdx]) {
+        activeLog.exercises[exIdx].note = val;
+      }
+    }
+
+    function removeExerciseFromActiveLog(exIdx) {
+      activeLog.exercises.splice(exIdx, 1);
+      updateCartBadges();
+      renderActiveWorkoutList();
+      renderExercises();
+    }
+
+    function saveWorkoutSession() {
+      const date = document.getElementById('logDate').value;
+      const oneLiner = document.getElementById('logOneLiner').value.trim();
+      const refLearned = document.getElementById('refLearned').value.trim();
+      const refBody = document.getElementById('refBody').value.trim();
+      const refQuestion = document.getElementById('refQuestion').value.trim();
+
+      if (!date) {
+        showToast('⚠️ 請選擇訓練日期');
+        return;
+      }
+
+      if (activeLog.exercises.length === 0 && !oneLiner && !refLearned && !refBody) {
+        showToast('⚠️ 請至少加入一個訓練動作，或寫下一句今日覆盤喔！');
+        return;
+      }
+
+      const sessionObj = {
+        id: activeLog.editingSessionId || ('sess_' + Date.now()),
+        date,
+        type: activeLog.type,
+        oneLiner: oneLiner || (activeLog.type === '自主訓練' ? '完成自主訓練！' : '完成教練課訓練！'),
+        exercises: JSON.parse(JSON.stringify(activeLog.exercises)),
+        refLearned,
+        refBody,
+        refQuestion
+      };
+
+      if (activeLog.editingSessionId) {
+        const idx = appData.sessions.findIndex(s => s.id === activeLog.editingSessionId);
+        if (idx !== -1) {
+          appData.sessions[idx] = sessionObj;
+        } else {
+          appData.sessions.push(sessionObj);
+        }
+      } else {
+        appData.sessions.push(sessionObj);
+      }
+
+      saveAppData();
+      resetLogForm();
+      renderAll();
+      showToast('🎉 訓練與覆盤紀錄已成功儲存！');
+      switchTab('history');
+    }
+
+    function resetLogForm() {
+      activeLog = {
+        editingSessionId: null,
+        type: '自主訓練',
+        exercises: []
+      };
+      initDateInput();
+      document.getElementById('logOneLiner').value = '';
+      document.getElementById('refLearned').value = '';
+      document.getElementById('refBody').value = '';
+      document.getElementById('refQuestion').value = '';
+      document.getElementById('logFormModeTitle').textContent = '新增訓練與覆盤紀錄';
+      document.getElementById('saveSessionBtnText').textContent = '儲存今日訓練紀錄';
+      document.getElementById('cancelEditSessionBtn').classList.add('hidden');
+      updateCartBadges();
+      renderActiveWorkoutList();
+      renderExercises();
+    }
+
+    // ==================== TAB 3: PROGRESS & ACHIEVEMENTS ====================
+    function populateChartDropdown() {
+      const sel = document.getElementById('chartExerciseSelect');
+      const weightExercises = appData.exercises.filter(e => e.unit === 'lbs' || e.unit === 'kg');
+      sel.innerHTML = weightExercises.map(ex =>
+        `<option value="${ex.id}" ${ex.id === 'ex_leg_press_pin' ? 'selected' : ''}>${ex.name} (${ex.unit})</option>`
+      ).join('');
+    }
+
+    function renderProgressTab() {
+      const total = appData.sessions.length;
+      const selfCount = appData.sessions.filter(s => s.type === '自主訓練').length;
+      const coachCount = total - selfCount;
+      const legPressStats = getExerciseHistoryStats('ex_leg_press_pin');
+
+      document.getElementById('statTotalSessions').textContent = total;
+      document.getElementById('statCoachCount').textContent = `教練課 ${coachCount} 堂`;
+      document.getElementById('statSelfSessions').textContent = selfCount;
+      document.getElementById('statLegPressPR').textContent = legPressStats.maxWeight || 140;
+
+      renderProgressionChart();
+      renderFootprintTimeline();
+      renderQuestionsBox();
+    }
+
+    function renderProgressionChart() {
+      const sel = document.getElementById('chartExerciseSelect');
+      const exId = sel.value || 'ex_leg_press_pin';
+      const ex = getExerciseById(exId);
+      const container = document.getElementById('chartContainer');
+      const pillsContainer = document.getElementById('chartHistoryPills');
+
+      // Gather chronological data points for this exercise
+      const chronological = [...appData.sessions].sort((a, b) => a.date.localeCompare(b.date));
+      const dataPoints = [];
+
+      chronological.forEach(sess => {
+        const found = sess.exercises.find(e => e.exerciseId === exId);
+        if (found && found.sets && found.sets.length > 0) {
+          let maxW = 0;
+          found.sets.forEach(s => {
+            const w = parseFloat(s.weight) || 0;
+            if (w > maxW) maxW = w;
+          });
+          dataPoints.push({
+            date: formatShortDate(sess.date),
+            fullDate: sess.date,
+            maxWeight: maxW,
+            setsSummary: formatSetsSummary(found.sets, ex.unit),
+            type: sess.type
+          });
+        }
+      });
+
+      if (dataPoints.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400">此動作目前尚無重量紀錄</p>`;
+        pillsContainer.innerHTML = '';
+        return;
+      }
+
+      // Build clean responsive SVG Line Chart
+      const width = 460;
+      const height = 175;
+      const padLeft = 40;
+      const padRight = 25;
+      const padTop = 28;
+      const padBottom = 32;
+
+      const weights = dataPoints.map(d => d.maxWeight);
+      const minW = Math.max(0, Math.min(...weights) * 0.8);
+      const maxW = Math.max(...weights) * 1.1 || 10;
+
+      const getX = (i) => {
+        if (dataPoints.length === 1) return width / 2;
+        return padLeft + (i / (dataPoints.length - 1)) * (width - padLeft - padRight);
+      };
+
+      const getY = (w) => {
+        if (maxW === minW) return height / 2;
+        return padTop + (1 - (w - minW) / (maxW - minW)) * (height - padTop - padBottom);
+      };
+
+      const pointsAttr = dataPoints.map((d, i) => `${getX(i)},${getY(d.maxWeight)}`).join(' ');
+      const areaPoints = `${getX(0)},${height - padBottom} ${pointsAttr} ${getX(dataPoints.length - 1)},${height - padBottom}`;
+
+      const circlesHtml = dataPoints.map((d, i) => {
+        const cx = getX(i);
+        const cy = getY(d.maxWeight);
+        const isSelf = d.type === '自主訓練';
+        const dotColor = isSelf ? '#10b981' : '#f59e0b';
+        return `
+          <g>
+            <circle cx="${cx}" cy="${cy}" r="5.5" fill="${dotColor}" stroke="#0f172a" stroke-width="2"></circle>
+            <text x="${cx}" y="${cy - 10}" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="bold">${d.maxWeight}${ex.unit}</text>
+            <text x="${cx}" y="${height - 10}" text-anchor="middle" fill="#94a3b8" font-size="10">${d.date}</text>
+          </g>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" class="w-full h-full overflow-visible">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="${padLeft}" y1="${padTop}" x2="${width - padRight}" y2="${padTop}" stroke="#1e293b" stroke-dasharray="3 3"/>
+          <line x1="${padLeft}" y1="${height / 2}" x2="${width - padRight}" y2="${height / 2}" stroke="#1e293b" stroke-dasharray="3 3"/>
+          <line x1="${padLeft}" y1="${height - padBottom}" x2="${width - padRight}" y2="${height - padBottom}" stroke="#334155"/>
+          <!-- Area & Line -->
+          ${dataPoints.length > 1 ? `<polygon points="${areaPoints}" fill="url(#chartGrad)"/>` : ''}
+          ${dataPoints.length > 1 ? `<polyline fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${pointsAttr}"/>` : ''}
+          <!-- Data Nodes -->
+          ${circlesHtml}
+        </svg>
+      `;
+
+      pillsContainer.innerHTML = dataPoints.map(d => `
+        <div class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px]">
+          <span class="font-bold ${d.type === '自主訓練' ? 'text-emerald-400' : 'text-amber-400'}">${d.date}</span>
+          <span class="text-slate-300 ml-1">${d.setsSummary}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderFootprintTimeline() {
+      const container = document.getElementById('footprintTimeline');
+      const sorted = getSortedSessionsDesc();
+
+      container.innerHTML = sorted.map(sess => {
+        const isSelf = sess.type === '自主訓練';
+        const badgeStyle = isSelf
+          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+          : 'bg-amber-500/15 border-amber-500/40 text-amber-300';
+
+        return `
+          <div onclick="switchTab('history')" class="cursor-pointer p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-600 transition space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-white">${sess.date}</span>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${badgeStyle}">
+                ${isSelf ? '💪 自主' : '🎓 教練'}
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-300 line-clamp-1 font-medium">✦ ${sess.oneLiner || '完成訓練'}</p>
+            <p class="text-[10px] text-slate-500">共完成 ${sess.exercises.length} 項動作</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuestionsBox() {
+      const container = document.getElementById('questionsListContainer');
+      const sorted = getSortedSessionsDesc();
+      const items = [];
+
+      sorted.forEach(sess => {
+        if (sess.refQuestion && sess.refQuestion.trim()) {
+          items.push({
+            date: sess.date,
+            tag: '❓ 想問／想試',
+            text: sess.refQuestion
+          });
+        }
+        if (sess.refBody && sess.refBody.trim()) {
+          items.push({
+            date: sess.date,
+            tag: '👤 身體發現',
+            text: sess.refBody
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500">目前沒有待問事項，可在每次覆盤時隨手記下！</p>`;
+        return;
+      }
+
+      container.innerHTML = items.slice(0, 6).map(item => `
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-bold ${item.tag.includes('❓') ? 'text-purple-300' : 'text-amber-300'}">${item.tag}</span>
+            <span class="text-slate-500">${item.date}</span>
+          </div>
+          <p class="text-xs text-slate-200 whitespace-pre-line leading-relaxed">${item.text}</p>
+        </div>
+      `).join('');
+    }
+
+    // ==================== TAB 4: HISTORY & REFLECTIONS ====================
+    function setHistoryFilter(hcat) {
+      currentHistoryFilter = hcat;
+      document.querySelectorAll('.hist-pill').forEach(btn => {
+        if (btn.dataset.hcat === hcat) {
+          btn.className = 'hist-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950';
+        } else {
+          btn.className = 'hist-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300';
+        }
+      });
+      renderHistoryTab();
+    }
+
+    function renderHistoryTab() {
+      const container = document.getElementById('historyListContainer');
+      const sorted = getSortedSessionsDesc();
+      const filtered = sorted.filter(s => currentHistoryFilter === '全部' || s.type === currentHistoryFilter);
+
+      document.getElementById('historyCountLabel').textContent = `共 ${filtered.length} 筆紀錄`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card rounded-2xl p-8 text-center text-xs text-slate-400">
+            此分類尚無訓練紀錄
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(sess => {
+        const isSelf = sess.type === '自主訓練';
+        const badgeClass = isSelf
+          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+          : 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+
+        const exRows = sess.exercises.map(item => {
+          const ex = getExerciseById(item.exerciseId);
+          return `
+            <div class="flex items-start justify-between gap-2 py-1.5 border-b border-slate-800/70 last:border-none text-xs">
+              <div class="font-bold text-slate-200">
+                ${ex.name}
+                ${item.note ? `<span class="ml-1 text-[11px] font-normal text-amber-300">(${item.note})</span>` : ''}
+              </div>
+              <div class="text-slate-300 font-semibold text-right shrink-0">
+                ${formatSetsSummary(item.sets, ex.unit)}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const hasReflection = (sess.refLearned && sess.refLearned.trim()) ||
+                              (sess.refBody && sess.refBody.trim()) ||
+                              (sess.refQuestion && sess.refQuestion.trim());
+
+        const reflectionHtml = hasReflection ? `
+          <div class="bg-slate-950/75 rounded-xl p-3 space-y-2 border border-slate-800/90 mt-2">
+            ${sess.refLearned ? `
+              <div>
+                <div class="text-[11px] font-bold text-amber-400">🧠 學到的動作／器材機關：</div>
+                <p class="text-xs text-slate-200 whitespace-pre-line leading-relaxed mt-0.5">${sess.refLearned}</p>
+              </div>
+            ` : ''}
+            ${sess.refBody ? `
+              <div>
+                <div class="text-[11px] font-bold text-emerald-400">👤 對自己身體的發現：</div>
+                <p class="text-xs text-slate-200 whitespace-pre-line leading-relaxed mt-0.5">${sess.refBody}</p>
+              </div>
+            ` : ''}
+            ${sess.refQuestion ? `
+              <div>
+                <div class="text-[11px] font-bold text-purple-400">❓ 下次想記得／想問：</div>
+                <p class="text-xs text-slate-200 whitespace-pre-line leading-relaxed mt-0.5">${sess.refQuestion}</p>
+              </div>
+            ` : ''}
+          </div>
+        ` : '';
+
+        return `
+          <div class="glass-card rounded-2xl p-4 space-y-3">
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-black text-white">${sess.date}</span>
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
+                    ${isSelf ? '💪 自主訓練' : '🎓 教練課 (Emma)'}
+                  </span>
+                </div>
+                <p class="text-xs font-bold text-amber-300 mt-1">✦ ${sess.oneLiner || '完成訓練'}</p>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="copySessionToToday('${sess.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-semibold text-amber-300 border border-slate-700" title="複製這天的課表到今日訓練">
+                  <i class="fa-regular fa-copy mr-1"></i>照這練
+                </button>
+                <button onclick="editPastSession('${sess.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs" title="編輯紀錄">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="deletePastSession('${sess.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 text-xs" title="刪除紀錄">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Exercises List -->
+            <div class="bg-slate-900/70 rounded-xl px-3 py-1.5 border border-slate-800/80">
+              ${exRows}
+            </div>
+
+            <!-- Reflection Notes -->
+            ${reflectionHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // One-click "照這練" (Copy a past session's exercises to today's active workout, just like 10/18 autonomous session!)
+    function copySessionToToday(sessId) {
+      const sess = appData.sessions.find(s => s.id === sessId);
+      if (!sess) return;
+
+      activeLog.editingSessionId = null;
+      activeLog.type = '自主訓練';
+      activeLog.exercises = JSON.parse(JSON.stringify(sess.exercises));
+      initDateInput();
+
+      document.getElementById('logFormModeTitle').textContent = '新增訓練與覆盤紀錄';
+      document.getElementById('saveSessionBtnText').textContent = '儲存今日訓練紀錄';
+      document.getElementById('cancelEditSessionBtn').classList.add('hidden');
+
+      updateCartBadges();
+      renderActiveWorkoutList();
+      switchTab('log');
+      showToast(`💪 已將 ${sess.date} 的課表帶入今日訓練！`);
+    }
+
+    function editPastSession(sessId) {
+      const sess = appData.sessions.find(s => s.id === sessId);
+      if (!sess) return;
+
+      activeLog.editingSessionId = sess.id;
+      activeLog.type = sess.type;
+      activeLog.exercises = JSON.parse(JSON.stringify(sess.exercises));
+
+      document.getElementById('logDate').value = sess.date;
+      setSessionType(sess.type);
+      document.getElementById('logOneLiner').value = sess.oneLiner || '';
+      document.getElementById('refLearned').value = sess.refLearned || '';
+      document.getElementById('refBody').value = sess.refBody || '';
+      document.getElementById('refQuestion').value = sess.refQuestion || '';
+
+      document.getElementById('logFormModeTitle').textContent = `編輯過往紀錄 (${sess.date})`;
+      document.getElementById('saveSessionBtnText').textContent = `更新 ${sess.date} 的訓練紀錄`;
+      document.getElementById('cancelEditSessionBtn').classList.remove('hidden');
+
+      updateCartBadges();
+      renderActiveWorkoutList();
+      switchTab('log');
+      showToast(`✏️ 正在編輯 ${sess.date} 的紀錄`);
+    }
+
+    function deletePastSession(sessId) {
+      appData.sessions = appData.sessions.filter(s => s.id !== sessId);
+      saveAppData();
+      renderAll();
+      showToast('🗑️ 已刪除該筆紀錄');
+    }
+
+    // ==================== BACKUP, IMPORT & RESET ====================
+    function exportDataJSON() {
+      const dataStr = JSON.stringify(appData, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const today = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `佳慧健身紀錄備份_${today}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('📦 備份檔已下載！');
+    }
+
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && Array.isArray(imported.exercises) && Array.isArray(imported.sessions)) {
+            appData = imported;
+            saveAppData();
+            populateQuickAddDropdown();
+            populateChartDropdown();
+            renderAll();
+            showToast('✅ 備份資料已成功還原！');
+          } else {
+            showToast('⚠️ 檔案格式不正確');
+          }
+        } catch (err) {
+          showToast('⚠️ 讀取備份檔失敗');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function openResetConfirmModal() {
+      const modal = document.getElementById('resetModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeResetConfirmModal() {
+      const modal = document.getElementById('resetModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmResetData() {
+      localStorage.removeItem(STORAGE_KEY);
+      loadAppData();
+      resetLogForm();
+      populateQuickAddDropdown();
+      populateChartDropdown();
+      renderAll();
+      closeResetConfirmModal();
+      showToast('🔄 已恢復為預設的 7 筆紀錄與 15 項動作庫！');
+    }
+
+    // ==================== TOAST HELPER ====================
+    let toastTimer = null;
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      const text = document.getElementById('toastMessage');
+      text.textContent = msg;
+      box.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.classList.add('hidden');
+      }, 2800);
+    }
+  </script>
+</body>
+</html>
