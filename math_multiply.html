@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>十十乘法表小達人｜國小二年級互動學習</title>
+
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- 載入圓潤可愛的繁體中文與數字字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Zen Maru Gothic"', '"Fredoka"', 'system-ui', 'sans-serif'],
+            num: ['"Fredoka"', '"Zen Maru Gothic"', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FFFBF0',
+            sunshine: '#FFD166',
+            coral: '#FF6B6B',
+            mint: '#06D6A0',
+            skyplay: '#4CC9F0',
+            berry: '#8338EC',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* 基礎背景與防水平捲動 */
+    body {
+      background-color: #FFFBF0;
+      background-image:
+        radial-gradient(#FFE6A7 1.5px, transparent 1.5px),
+        radial-gradient(#D8F3DC 1.5px, #FFFBF0 1.5px);
+      background-size: 36px 36px;
+      background-position: 0 0, 18px 18px;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* 立體圓潤遊戲按鈕特效 */
+    .btn-3d {
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, filter 0.15s ease;
+    }
+    .btn-3d:active:not(:disabled) {
+      transform: translateY(4px);
+    }
+    .btn-3d-amber {
+      box-shadow: 0 5px 0 #D97706;
+    }
+    .btn-3d-amber:active:not(:disabled) {
+      box-shadow: 0 1px 0 #D97706;
+    }
+    .btn-3d-emerald {
+      box-shadow: 0 5px 0 #059669;
+    }
+    .btn-3d-emerald:active:not(:disabled) {
+      box-shadow: 0 1px 0 #059669;
+    }
+    .btn-3d-rose {
+      box-shadow: 0 5px 0 #E11D48;
+    }
+    .btn-3d-rose:active:not(:disabled) {
+      box-shadow: 0 1px 0 #E11D48;
+    }
+    .btn-3d-sky {
+      box-shadow: 0 5px 0 #0284C7;
+    }
+    .btn-3d-sky:active:not(:disabled) {
+      box-shadow: 0 1px 0 #0284C7;
+    }
+    .btn-3d-purple {
+      box-shadow: 0 5px 0 #6D28D9;
+    }
+    .btn-3d-purple:active:not(:disabled) {
+      box-shadow: 0 1px 0 #6D28D9;
+    }
+    .btn-3d-slate {
+      box-shadow: 0 4px 0 #CBD5E1;
+    }
+    .btn-3d-slate:active:not(:disabled) {
+      box-shadow: 0 1px 0 #CBD5E1;
+    }
+
+    /* 3D 閃卡翻轉特效 */
+    .card-scene {
+      perspective: 1200px;
+    }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      transition: transform 0.52s cubic-bezier(0.34, 1.45, 0.64, 1);
+      transform-style: preserve-3d;
+    }
+    .card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+    .card-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
+
+    /* 換題彈入動畫 */
+    @keyframes cardPopIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(14px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-card-in {
+      animation: cardPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* 倒數最後 15 秒溫和橘紅跳動提醒 */
+    @keyframes gentleUrgent {
+      0%, 100% { transform: scale(1); background-color: #FFEDD5; border-color: #FB923C; color: #C2410C; }
+      50% { transform: scale(1.06); background-color: #FEE2E2; border-color: #F87171; color: #B91C1C; }
+    }
+    .timer-urgent {
+      animation: gentleUrgent 0.9s ease-in-out infinite;
+    }
+
+    /* 星星登場彈跳 */
+    @keyframes starBounce {
+      0% { opacity: 0; transform: scale(0) rotate(-25deg); }
+      65% { opacity: 1; transform: scale(1.22) rotate(8deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    .star-pop {
+      animation: starBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* 點點出現微動畫 */
+    @keyframes dotPop {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .dot-item {
+      animation: dotPop 0.22s ease-out backwards;
+    }
+
+    /* 撒花畫布 */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 60;
+      display: none;
+    }
+
+    /* 隱藏 number input 上下箭頭美化 */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 font-sans antialiased">
+
+  <!-- 撒花特效 Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- 頂部浮動輕提示 Toast -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-3">
+    <div id="toast-content" class="bg-slate-800/95 text-white font-bold px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-base sm:text-lg whitespace-nowrap">
+      <span>✨</span><span id="toast-msg">提示訊息</span>
+    </div>
+  </div>
+
+  <!-- 自訂友善彈窗 Modal（取代 alert 與 confirm） -->
+  <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border-4 border-amber-200 animate-card-in">
+      <div class="text-center">
+        <div id="modal-icon" class="text-5xl mb-3">🌟</div>
+        <h3 id="modal-title" class="text-2xl font-black text-slate-800 mb-2">小提醒</h3>
+        <p id="modal-body" class="text-slate-600 text-base leading-relaxed mb-6">內容說明</p>
+      </div>
+      <div id="modal-actions" class="flex gap-3 justify-center">
+        <!-- 動態插入按鈕 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+
+    <!-- 頁首：吉祥物標題與音效／語音開關 -->
+    <header class="bg-white/95 backdrop-blur rounded-3xl shadow-md border-2 border-amber-200 px-4 py-3 sm:px-6 sm:py-4 mb-4 sm:mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="handleHeaderLogoClick()">
+        <!-- 可愛星星小貓頭鷹 SVG 吉祥物 -->
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-300 to-orange-400 flex items-center justify-center shadow-inner border-2 border-amber-500/30 shrink-0">
+          <svg viewBox="0 0 64 64" class="w-10 h-10 sm:w-12 sm:h-12" aria-hidden="true">
+            <circle cx="32" cy="34" r="22" fill="#FFF7ED" stroke="#EA580C" stroke-width="3"/>
+            <!-- 耳朵 -->
+            <path d="M14 22 L10 10 L23 16 Z" fill="#FB923C" stroke="#EA580C" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M50 22 L54 10 L41 16 Z" fill="#FB923C" stroke="#EA580C" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- 眼睛 -->
+            <circle cx="24" cy="31" r="4.5" fill="#1E293B"/>
+            <circle cx="22.5" cy="29.5" r="1.5" fill="#FFFFFF"/>
+            <circle cx="40" cy="31" r="4.5" fill="#1E293B"/>
+            <circle cx="38.5" cy="29.5" r="1.5" fill="#FFFFFF"/>
+            <!-- 腮紅 -->
+            <ellipse cx="17" cy="37" rx="3.5" ry="2" fill="#FDA4AF"/>
+            <ellipse cx="47" cy="37" rx="3.5" ry="2" fill="#FDA4AF"/>
+            <!-- 微笑與乘號徽章 -->
+            <path d="M28 38 Q32 42 36 38" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="32" cy="50" r="8" fill="#38BDF8" stroke="#0284C7" stroke-width="2"/>
+            <path d="M29 47 L35 53 M35 47 L29 53" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-amber-900 leading-tight">
+            十十乘法表小達人
+          </h1>
+          <p class="text-xs sm:text-sm font-bold text-amber-600">國小二年級・快樂背乘法</p>
+        </div>
+      </div>
+
+      <!-- 聲音控制開關 -->
+      <div class="flex items-center gap-2">
+        <button id="btn-toggle-sfx" onclick="toggleSfx()" type="button"
+          class="btn-3d btn-3d-slate flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 text-sm sm:text-base font-bold transition-colors"
+          aria-label="切換音效開關">
+          <span id="sfx-icon" class="text-lg">🔊</span>
+          <span class="hidden xs:inline sm:inline">音效</span>
+        </button>
+        <button id="btn-toggle-voice" onclick="toggleVoice()" type="button"
+          class="btn-3d btn-3d-slate flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 text-sm sm:text-base font-bold transition-colors"
+          aria-label="切換中文語音朗讀開關">
+          <span id="voice-icon" class="text-lg">🗣️</span>
+          <span class="hidden xs:inline sm:inline">語音朗讀</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 主導覽分頁列（測驗進行中自動隱藏以幫助專心） -->
+    <nav id="main-nav" class="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+      <button id="tab-setup" onclick="switchTab('setup')" type="button"
+        class="btn-3d py-3 sm:py-3.5 px-2 sm:px-4 rounded-2xl font-black text-sm sm:text-lg border-2 flex items-center justify-center gap-1.5 sm:gap-2 transition-all">
+        <span class="text-lg sm:text-xl">🎯</span>
+        <span>開始練習</span>
+      </button>
+      <button id="tab-heatmap" onclick="switchTab('heatmap')" type="button"
+        class="btn-3d py-3 sm:py-3.5 px-2 sm:px-4 rounded-2xl font-black text-sm sm:text-lg border-2 flex items-center justify-center gap-1.5 sm:gap-2 transition-all relative">
+        <span class="text-lg sm:text-xl">📊</span>
+        <span class="truncate">錯題與熱圖</span>
+        <span id="nav-wrong-badge" class="hidden bg-rose-500 text-white text-xs font-num font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
+      </button>
+      <button id="tab-helper" onclick="switchTab('helper')" type="button"
+        class="btn-3d py-3 sm:py-3.5 px-2 sm:px-4 rounded-2xl font-black text-sm sm:text-lg border-2 flex items-center justify-center gap-1.5 sm:gap-2 transition-all">
+        <span class="text-lg sm:text-xl">📖</span>
+        <span class="truncate">乘法小幫手</span>
+      </button>
+    </nav>
+
+    <!-- ========================================================= -->
+    <!-- 分頁 1：練習設定畫面 (#view-setup)                        -->
+    <!-- ========================================================= -->
+    <main id="view-setup" class="space-y-5">
+
+      <!-- 練習模式切換：一般自選 vs 錯題加強 -->
+      <section class="bg-white rounded-3xl p-4 sm:p-6 shadow-md border-2 border-amber-200">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <h2 class="text-lg sm:text-xl font-black text-slate-800 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg">1</span>
+            選擇練習模式
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+          <button id="mode-normal-btn" onclick="setPracticeMode('normal')" type="button"
+            class="p-4 rounded-2xl border-3 text-left transition-all flex items-center gap-3.5 border-2">
+            <div class="w-12 h-12 rounded-2xl bg-sky-100 text-3xl flex items-center justify-center shrink-0">📚</div>
+            <div>
+              <div class="font-black text-lg text-slate-800">自選乘法表練習</div>
+              <div class="text-xs sm:text-sm text-slate-500 font-medium">自由挑選 1～10 的乘法表來挑戰</div>
+            </div>
+          </button>
+
+          <button id="mode-weakness-btn" onclick="setPracticeMode('weakness')" type="button"
+            class="p-4 rounded-2xl border-3 text-left transition-all flex items-center gap-3.5 border-2">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-3xl flex items-center justify-center shrink-0">🔥</div>
+            <div>
+              <div class="font-black text-lg text-slate-800 flex items-center gap-2">
+                錯題加強模式
+                <span class="text-xs bg-rose-500 text-white px-2 py-0.5 rounded-full">推薦</span>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-500 font-medium">錯越多次越常出現，精準打敗大魔王</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- 子區塊 A：指定 1~10 的乘法表 -->
+        <div id="setup-normal-panel" class="space-y-4 pt-2 border-t-2 border-dashed border-amber-100">
+          <!-- 快速選取鍵 -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="applyTablePreset('all')" type="button"
+              class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-sm transition-colors">
+              🌟 全選 (1~10)
+            </button>
+            <button onclick="applyTablePreset('basic')" type="button"
+              class="px-3.5 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-sm transition-colors">
+              🌱 基礎入門 (1, 2, 5, 10)
+            </button>
+            <button onclick="applyTablePreset('mid')" type="button"
+              class="px-3.5 py-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 font-bold text-sm transition-colors">
+              🚀 進階挑戰 (3, 4, 6)
+            </button>
+            <button onclick="applyTablePreset('boss')" type="button"
+              class="px-3.5 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-sm transition-colors">
+              😈 大魔王區 (7, 8, 9)
+            </button>
+            <button onclick="applyTablePreset('clear')" type="button"
+              class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-colors">
+              🧹 清除
+            </button>
+          </div>
+
+          <!-- 1~10 大型圓角按鈕 -->
+          <div id="table-buttons-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-2.5">
+            <!-- 由 JS 動態產生 1~10 按鈕 -->
+          </div>
+
+          <!-- 出題順序選擇 -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div class="text-sm font-bold text-slate-600">
+              已選擇：<span id="selected-tables-summary" class="text-amber-700 font-black">2, 3, 4, 5</span> 的乘法表
+            </div>
+            <div class="inline-flex bg-slate-100 p-1 rounded-2xl">
+              <button id="order-random-btn" onclick="setQuestionOrder('random')" type="button"
+                class="px-4 py-2 rounded-xl text-sm font-bold transition-all">
+                🎲 隨機出題
+              </button>
+              <button id="order-seq-btn" onclick="setQuestionOrder('sequential')" type="button"
+                class="px-4 py-2 rounded-xl text-sm font-bold transition-all">
+                📝 依序練習
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子區塊 B：錯題加強設定面板 -->
+        <div id="setup-weakness-panel" class="hidden space-y-4 pt-3 border-t-2 border-dashed border-rose-100">
+          <div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="text-3xl">🎯</div>
+              <div class="flex-1">
+                <p id="weakness-status-text" class="font-bold text-rose-900 text-base">
+                  目前個人錯題庫共有 <span class="font-num text-xl text-rose-600">0</span> 題需要加強！
+                </p>
+                <p class="text-sm text-rose-700 mt-1">
+                  系統會根據答錯次數自動加權，越容易搞混的算式越常出現，幫助小朋友徹底記熟。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 勾選自動加入二年級常見易錯大魔王題 -->
+          <label class="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border-2 border-amber-200 cursor-pointer hover:bg-amber-100/70 transition-colors">
+            <input id="chk-include-hard" type="checkbox" checked onchange="saveSettings()"
+              class="w-6 h-6 mt-0.5 rounded-lg accent-rose-500 cursor-pointer shrink-0" />
+            <div>
+              <div class="font-black text-slate-800 text-base">
+                自動加入二年級常見易錯大魔王題來補足題數
+              </div>
+              <div class="text-xs sm:text-sm text-slate-600 mt-1">
+                例如：<span class="font-num font-bold text-rose-600">6×7、6×8、7×8、7×9、8×9、7×7、8×8、4×8、4×7</span> 等最容易背錯的算式。
+              </div>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- 題數與計時器設定並排區塊 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- 區塊 2：指定題數 -->
+        <section class="bg-white rounded-3xl p-4 sm:p-6 shadow-md border-2 border-emerald-200 flex flex-col justify-between">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-800 flex items-center gap-2 mb-4">
+              <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">2</span>
+              設定練習題數
+            </h2>
+
+            <div class="grid grid-cols-4 gap-2 mb-4">
+              <button onclick="setQuestionCount(10)" data-qcount="10" type="button" class="qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 transition-all">10 題</button>
+              <button onclick="setQuestionCount(20)" data-qcount="20" type="button" class="qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 transition-all">20 題</button>
+              <button onclick="setQuestionCount(30)" data-qcount="30" type="button" class="qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 transition-all">30 題</button>
+              <button onclick="setQuestionCount(50)" data-qcount="50" type="button" class="qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 transition-all">50 題</button>
+            </div>
+
+            <div class="flex items-center gap-3 bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200">
+              <label for="custom-qcount" class="font-bold text-emerald-900 text-sm sm:text-base whitespace-nowrap">自訂題數 (1~100)：</label>
+              <input id="custom-qcount" type="number" min="1" max="100" value="20" oninput="onCustomQCountInput(this.value)"
+                class="w-full max-w-[110px] px-3 py-2 rounded-xl border-2 border-emerald-300 bg-white font-num font-bold text-lg text-center text-emerald-800 focus:outline-none focus:border-emerald-500" />
+              <span class="font-bold text-emerald-800">題</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 mt-3 font-medium">💡 小建議：每天輕鬆練習 10～20 題，進步最快喔！</p>
+        </section>
+
+        <!-- 區塊 3：雙模式計時器 -->
+        <section class="bg-white rounded-3xl p-4 sm:p-6 shadow-md border-2 border-sky-200">
+          <h2 class="text-lg sm:text-xl font-black text-slate-800 flex items-center gap-2 mb-4">
+            <span class="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-lg">3</span>
+            計時器設定
+          </h2>
+
+          <div class="grid grid-cols-2 gap-2.5 mb-4">
+            <button id="timer-up-btn" onclick="setTimerMode('countup')" type="button"
+              class="p-3 rounded-2xl border-2 font-bold text-sm sm:text-base flex flex-col items-center gap-1 transition-all">
+              <span class="text-2xl">⏱️</span>
+              <span>正向計時</span>
+              <span class="text-xs opacity-80 font-medium">計算背完時間</span>
+            </button>
+            <button id="timer-down-btn" onclick="setTimerMode('countdown')" type="button"
+              class="p-3 rounded-2xl border-2 font-bold text-sm sm:text-base flex flex-col items-center gap-1 transition-all">
+              <span class="text-2xl">⏳</span>
+              <span>倒數計時</span>
+              <span class="text-xs opacity-80 font-medium">指定時間挑戰</span>
+            </button>
+          </div>
+
+          <!-- 倒數計時子設定 -->
+          <div id="countdown-options" class="hidden space-y-3 bg-sky-50/80 p-3.5 rounded-2xl border border-sky-200">
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="setCountdownSeconds(30)" data-sec="30" type="button" class="sec-btn py-2 rounded-xl font-bold text-sm border-2 transition-all">30 秒</button>
+              <button onclick="setCountdownSeconds(60)" data-sec="60" type="button" class="sec-btn py-2 rounded-xl font-bold text-sm border-2 transition-all">1 分鐘</button>
+              <button onclick="setCountdownSeconds(120)" data-sec="120" type="button" class="sec-btn py-2 rounded-xl font-bold text-sm border-2 transition-all">2 分鐘</button>
+              <button onclick="setCountdownSeconds(180)" data-sec="180" type="button" class="sec-btn py-2 rounded-xl font-bold text-sm border-2 transition-all">3 分鐘</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="custom-seconds" class="text-sm font-bold text-sky-900 whitespace-nowrap">自訂秒數：</label>
+              <input id="custom-seconds" type="number" min="10" max="1800" value="60" oninput="onCustomSecondsInput(this.value)"
+                class="w-24 px-3 py-1.5 rounded-xl border-2 border-sky-300 bg-white font-num font-bold text-center text-sky-800 focus:outline-none focus:border-sky-500" />
+              <span class="text-sm font-bold text-sky-900">秒（剩 15 秒會提醒）</span>
+            </div>
+          </div>
+
+          <!-- 正向計時說明 -->
+          <div id="countup-info" class="bg-sky-50/70 p-3.5 rounded-2xl border border-sky-100 text-sm text-sky-900 font-medium">
+            ✨ 從 <span class="font-num font-bold">00:00</span> 開始計時，完成所有題目後會顯示總時間與平均每題秒數！
+          </div>
+        </section>
+      </div>
+
+      <!-- 大型開始挑戰按鈕 -->
+      <div class="pt-1 flex justify-center">
+        <button onclick="startQuizFromSetup()" type="button"
+          class="btn-3d btn-3d-amber w-full sm:w-auto sm:min-w-[340px] py-4 sm:py-5 px-8 rounded-3xl bg-gradient-to-b from-amber-400 to-orange-500 hover:brightness-105 text-white font-black text-2xl sm:text-3xl tracking-wide flex items-center justify-center gap-3">
+          <span>🚀</span>
+          <span>開始挑戰！</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- 分頁 2：閃卡作答畫面 (#view-quiz)                         -->
+    <!-- ========================================================= -->
+    <section id="view-quiz" class="hidden space-y-4">
+
+      <!-- 頂部即時狀態 HUD -->
+      <div class="bg-white rounded-3xl p-3.5 sm:p-4 shadow-md border-2 border-amber-200 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <!-- 進度與模式標籤 -->
+          <div class="flex items-center gap-2">
+            <span id="quiz-mode-pill" class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs sm:text-sm font-black">
+              📚 一般練習
+            </span>
+            <span class="font-black text-slate-700 text-base sm:text-lg">
+              第 <span id="hud-current" class="font-num text-xl sm:text-2xl text-amber-600">1</span> / <span id="hud-total" class="font-num">20</span> 題
+            </span>
+          </div>
+
+          <!-- 計時器膠囊 -->
+          <div id="hud-timer-box" class="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 font-num font-bold text-xl sm:text-2xl transition-colors">
+            <span id="hud-timer-icon" class="text-lg">⏱️</span>
+            <span id="hud-timer-text">00:00</span>
+          </div>
+
+          <!-- 正確 / 錯誤即時統計與控制鍵 -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-sm sm:text-base">
+              <span>✅</span><span id="hud-correct" class="font-num text-lg">0</span>
+            </div>
+            <div class="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 font-bold text-sm sm:text-base">
+              <span>❌</span><span id="hud-wrong" class="font-num text-lg">0</span>
+            </div>
+            <button id="btn-pause" onclick="togglePause()" type="button"
+              class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-sm transition-colors"
+              title="暫停/繼續計時 (P)">
+              ⏸️ <span class="hidden sm:inline">暫停</span>
+            </button>
+            <button onclick="confirmQuitQuiz()" type="button"
+              class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-colors"
+              title="結束練習">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- 進度條 -->
+        <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5">
+          <div id="hud-progress-bar" class="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-emerald-400 transition-all duration-300" style="width: 5%"></div>
+        </div>
+      </div>
+
+      <!-- 閃卡核心互動區 -->
+      <div class="relative max-w-2xl mx-auto">
+
+        <!-- 暫停遮罩（防止偷看題目） -->
+        <div id="pause-overlay" class="hidden absolute inset-0 z-30 bg-white/95 backdrop-blur-md rounded-[2rem] border-4 border-amber-300 shadow-xl flex flex-col items-center justify-center p-6 text-center">
+          <div class="text-6xl mb-3">☕</div>
+          <h3 class="text-2xl sm:text-3xl font-black text-amber-900 mb-2">暫停計時中！</h3>
+          <p class="text-slate-600 font-bold mb-6">題目先幫你藏起來，休息好再繼續挑戰吧～</p>
+          <button onclick="togglePause()" type="button"
+            class="btn-3d btn-3d-emerald px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-xl flex items-center gap-2">
+            <span>▶️</span><span>繼續挑戰</span>
+          </button>
+        </div>
+
+        <!-- 3D 翻轉卡片容器 -->
+        <div id="flashcard-wrapper" class="card-scene">
+          <div id="flashcard-inner" class="card-inner min-h-[290px] sm:min-h-[340px]">
+
+            <!-- 卡片正面：只顯示算式，絕不顯示答案 -->
+            <div onclick="handleCardClick()"
+              class="card-face absolute inset-0 bg-white rounded-[2rem] shadow-xl border-4 border-amber-300 p-5 sm:p-8 flex flex-col items-center justify-between cursor-pointer hover:border-amber-400 transition-colors">
+
+              <!-- 頂部輔助工具列 -->
+              <div class="w-full flex items-center justify-between gap-2">
+                <button onclick="event.stopPropagation(); speakCurrentQuestion()" type="button"
+                  class="px-3.5 py-2 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-sm flex items-center gap-1.5 border border-sky-200 transition-colors">
+                  <span>🔊</span><span>唸題目</span>
+                </button>
+                <span id="card-tag-front" class="hidden px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-black">
+                  🔥 易錯加強題
+                </span>
+                <button onclick="event.stopPropagation(); toggleDotHint()" type="button"
+                  class="px-3.5 py-2 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-sm flex items-center gap-1.5 border border-amber-200 transition-colors">
+                  <span>💡</span><span>點點圖提示</span>
+                </button>
+              </div>
+
+              <!-- 中央超大算式 -->
+              <div class="my-auto py-4 text-center">
+                <div id="front-equation" class="font-num font-bold text-6xl sm:text-7xl md:text-8xl tracking-wide text-slate-800 select-none">
+                  7 × 8 = <span class="text-amber-500">?</span>
+                </div>
+              </div>
+
+              <!-- 底部溫馨提示 -->
+              <div class="text-amber-600 font-bold text-sm sm:text-base flex items-center gap-1.5 bg-amber-50 px-4 py-1.5 rounded-full">
+                <span>👆</span><span>想好答案後，點一下卡片或按空白鍵看答案！</span>
+              </div>
+            </div>
+
+            <!-- 卡片背面：顯示答案與口訣 -->
+            <div class="card-face card-back absolute inset-0 bg-gradient-to-b from-emerald-50 to-white rounded-[2rem] shadow-xl border-4 border-emerald-400 p-5 sm:p-8 flex flex-col items-center justify-between">
+
+              <!-- 頂部工具列 -->
+              <div class="w-full flex items-center justify-between gap-2">
+                <button onclick="speakCurrentAnswer()" type="button"
+                  class="px-3.5 py-2 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-sm flex items-center gap-1.5 transition-colors">
+                  <span>🔊</span><span>再聽一次口訣</span>
+                </button>
+                <button onclick="toggleDotHint()" type="button"
+                  class="px-3.5 py-2 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-sm flex items-center gap-1.5 transition-colors">
+                  <span>💡</span><span>點點圖提示</span>
+                </button>
+              </div>
+
+              <!-- 中央答案區 -->
+              <div class="my-auto text-center space-y-3">
+                <div id="back-equation-small" class="font-num font-bold text-2xl sm:text-3xl text-slate-500">
+                  7 × 8 =
+                </div>
+                <div id="back-answer" class="font-num font-bold text-7xl sm:text-8xl md:text-9xl text-emerald-600 leading-none drop-shadow-sm">
+                  <!-- 翻牌後由 JS 動態填入，確保絕不提前洩漏 -->
+                </div>
+                <div class="pt-1">
+                  <span id="back-mnemonic" class="inline-block px-5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 text-amber-900 font-black text-xl sm:text-2xl">
+                    <!-- 口訣提示 -->
+                  </span>
+                </div>
+              </div>
+
+              <div class="text-slate-500 font-bold text-xs sm:text-sm">
+                你有答對嗎？請點選下方按鈕記錄成績 👇
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 選用的視覺化點點陣列提示區 -->
+        <div id="dot-hint-panel" class="hidden mt-4 bg-white rounded-3xl p-4 sm:p-5 shadow-md border-2 border-amber-200 animate-card-in">
+          <div class="flex items-center justify-between mb-3">
+            <div class="font-black text-amber-900 text-base sm:text-lg flex items-center gap-2">
+              <span>💡</span>
+              <span id="dot-hint-caption">有 7 排，每排有 8 顆點點！</span>
+            </div>
+            <button onclick="toggleDotHint()" type="button" class="text-slate-400 hover:text-slate-600 font-bold text-sm px-2 py-1 rounded-lg">
+              收合 ▲
+            </button>
+          </div>
+          <div id="dot-hint-grid" class="flex flex-col items-center gap-1.5 sm:gap-2 py-2 overflow-x-auto">
+            <!-- 由 JS 繪製彩色點點陣列 -->
+          </div>
+        </div>
+
+        <!-- 底部大型互動按鈕區 -->
+        <div class="mt-5">
+          <!-- 狀態 1：尚未翻牌（看答案按鈕） -->
+          <div id="quiz-actions-hidden" class="flex justify-center">
+            <button onclick="revealAnswer()" type="button"
+              class="btn-3d btn-3d-amber w-full py-4 sm:py-5 px-6 rounded-3xl bg-gradient-to-b from-amber-400 to-amber-500 hover:brightness-105 text-amber-950 font-black text-2xl sm:text-3xl flex items-center justify-center gap-3">
+              <span>👀</span>
+              <span>看答案</span>
+              <span class="hidden sm:inline-block text-sm font-bold bg-white/40 px-2.5 py-1 rounded-xl">空白鍵</span>
+            </button>
+          </div>
+
+          <!-- 狀態 2：已翻牌（答對／答錯按鈕） -->
+          <div id="quiz-actions-revealed" class="hidden grid grid-cols-2 gap-3 sm:gap-5">
+            <button onclick="submitResult(false)" type="button"
+              class="btn-3d btn-3d-rose py-4 sm:py-5 px-3 sm:px-6 rounded-3xl bg-gradient-to-b from-rose-400 to-rose-500 hover:brightness-105 text-white font-black text-lg sm:text-2xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2.5">
+              <span class="text-2xl sm:text-3xl">❌</span>
+              <span>答錯了／再加強</span>
+              <span class="hidden md:inline-block text-xs font-bold bg-black/15 px-2 py-0.5 rounded-lg">←</span>
+            </button>
+            <button onclick="submitResult(true)" type="button"
+              class="btn-3d btn-3d-emerald py-4 sm:py-5 px-3 sm:px-6 rounded-3xl bg-gradient-to-b from-emerald-400 to-emerald-500 hover:brightness-105 text-white font-black text-lg sm:text-2xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2.5">
+              <span class="text-2xl sm:text-3xl">⭕</span>
+              <span>答對了！</span>
+              <span class="hidden md:inline-block text-xs font-bold bg-black/15 px-2 py-0.5 rounded-lg">→</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 分頁 3：慶祝結算畫面 (#view-summary)                      -->
+    <!-- ========================================================= -->
+    <section id="view-summary" class="hidden space-y-5 max-w-3xl mx-auto">
+      <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-xl border-4 border-amber-300 text-center">
+        <div id="summary-badge" class="inline-block px-4 py-1.5 rounded-full bg-amber-100 text-amber-800 font-black text-sm mb-3">
+          🎉 練習完成！
+        </div>
+
+        <!-- 星星評等 -->
+        <div id="summary-stars" class="flex items-center justify-center gap-3 text-5xl sm:text-6xl my-2">
+          <!-- 由 JS 動態填入星星 -->
+        </div>
+
+        <h2 id="summary-headline" class="text-2xl sm:text-3xl font-black text-slate-800 mt-3 mb-1">
+          太棒了！你是乘法小達人！
+        </h2>
+        <p id="summary-subtext" class="text-slate-600 font-bold text-sm sm:text-base mb-6">
+          每一次練習都讓你更熟練喔！
+        </p>
+
+        <!-- 4 大成績指標卡片 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div class="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3.5">
+            <div class="text-xs sm:text-sm font-bold text-emerald-700">✅ 答對題數</div>
+            <div id="sum-correct" class="font-num font-bold text-3xl sm:text-4xl text-emerald-600 mt-1">18</div>
+          </div>
+          <div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-3.5">
+            <div class="text-xs sm:text-sm font-bold text-rose-700">❌ 答錯題數</div>
+            <div id="sum-wrong" class="font-num font-bold text-3xl sm:text-4xl text-rose-500 mt-1">2</div>
+          </div>
+          <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-3.5">
+            <div class="text-xs sm:text-sm font-bold text-amber-700">🎯 正確率</div>
+            <div id="sum-accuracy" class="font-num font-bold text-3xl sm:text-4xl text-amber-600 mt-1">90%</div>
+          </div>
+          <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3.5">
+            <div class="text-xs sm:text-sm font-bold text-sky-700">⏱️ 總耗時</div>
+            <div id="sum-time" class="font-num font-bold text-2xl sm:text-3xl text-sky-600 mt-1">01:12</div>
+            <div id="sum-avg-time" class="text-xs font-bold text-sky-700/80 mt-0.5">平均 3.6 秒/題</div>
+          </div>
+        </div>
+
+        <!-- 本次錯題清單（若有答錯才顯示） -->
+        <div id="summary-wrong-section" class="hidden text-left bg-rose-50/80 border-2 border-rose-200 rounded-3xl p-4 sm:p-5 mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h3 class="font-black text-rose-900 text-lg flex items-center gap-2">
+              <span>📝</span><span>本次需要再加強的題目</span>
+            </h3>
+            <span class="text-xs font-bold text-rose-600">點一下算式可以聽語音喔！</span>
+          </div>
+          <div id="summary-wrong-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+            <!-- 動態產生錯題卡 -->
+          </div>
+          <button onclick="retrySessionWrongQuestions()" type="button"
+            class="btn-3d btn-3d-rose w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 text-white font-black text-lg sm:text-xl flex items-center justify-center gap-2">
+            <span>🔥</span><span id="btn-retry-wrong-text">立刻重練本次錯題</span>
+          </button>
+        </div>
+
+        <!-- 底部操作按鈕 -->
+        <div class="flex flex-wrap justify-center gap-3">
+          <button onclick="restartSameQuiz()" type="button"
+            class="btn-3d btn-3d-amber flex-1 min-w-[140px] py-3.5 px-5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-lg">
+            🔄 再玩一次
+          </button>
+          <button onclick="switchTab('heatmap')" type="button"
+            class="btn-3d btn-3d-sky flex-1 min-w-[140px] py-3.5 px-5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-lg">
+            📊 看熟練度熱圖
+          </button>
+          <button onclick="switchTab('setup')" type="button"
+            class="btn-3d btn-3d-slate flex-1 min-w-[140px] py-3.5 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-lg border-2 border-slate-200">
+            🏠 回練習設定
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 分頁 4：錯題本與熟練度熱圖 (#view-heatmap)                -->
+    <!-- ========================================================= -->
+    <section id="view-heatmap" class="hidden space-y-5">
+
+      <!-- 頂部學習總覽與快速動作 -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-md border-2 border-purple-200 flex flex-wrap items-center justify-between gap-4">
+        <div class="grid grid-cols-3 gap-3 sm:gap-6 flex-1 min-w-[240px]">
+          <div>
+            <div class="text-xs sm:text-sm font-bold text-slate-500">已練習格子</div>
+            <div class="font-num font-bold text-2xl sm:text-3xl text-purple-600"><span id="hm-stat-practiced">0</span><span class="text-sm text-slate-400"> / 100</span></div>
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm font-bold text-slate-500">🌟 已熟練</div>
+            <div id="hm-stat-mastered" class="font-num font-bold text-2xl sm:text-3xl text-emerald-600">0</div>
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm font-bold text-slate-500">🔥 需加強</div>
+            <div id="hm-stat-weak" class="font-num font-bold text-2xl sm:text-3xl text-rose-500">0</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+          <button onclick="launchWeaknessPracticeDirect()" type="button"
+            class="btn-3d btn-3d-rose flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-rose-500 hover:bg-rose-400 text-white font-black text-base flex items-center justify-center gap-1.5">
+            <span>🔥</span><span>針對錯題開練</span>
+          </button>
+          <button onclick="confirmResetStats()" type="button"
+            class="btn-3d btn-3d-slate px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm border border-slate-200">
+            🗑️ 重置紀錄
+          </button>
+        </div>
+      </div>
+
+      <!-- 主體：左側 10x10 熱圖，右側詳情與排行榜 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- 10x10 熟練度熱圖 -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-4 sm:p-5 shadow-md border-2 border-amber-200">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h2 class="text-lg sm:text-xl font-black text-slate-800">🗺️ 10×10 熟練度熱圖</h2>
+            <!-- 圖例 -->
+            <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+              <span class="flex items-center gap-1"><span class="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-300 inline-block"></span>未練習</span>
+              <span class="flex items-center gap-1"><span class="w-3.5 h-3.5 rounded bg-emerald-400 inline-block"></span>熟練</span>
+              <span class="flex items-center gap-1"><span class="w-3.5 h-3.5 rounded bg-amber-300 inline-block"></span>進步中</span>
+              <span class="flex items-center gap-1"><span class="w-3.5 h-3.5 rounded bg-rose-400 inline-block"></span>需加強</span>
+            </div>
+          </div>
+
+          <p class="text-xs sm:text-sm text-slate-500 font-bold mb-3">👆 點擊任一格子，可查看該題的答對／答錯紀錄與口訣！</p>
+
+          <!-- 11x11 網格（含座標軸 1~10） -->
+          <div id="heatmap-grid" class="grid grid-cols-11 gap-1 sm:gap-1.5 select-none">
+            <!-- 由 JS 動態建立 -->
+          </div>
+        </div>
+
+        <!-- 右側欄：單題詳情 + 最常錯排行榜 -->
+        <div class="lg:col-span-5 space-y-5">
+
+          <!-- 點選格子的詳細紀錄卡片 -->
+          <div id="heatmap-detail-card" class="bg-white rounded-3xl p-4 sm:p-5 shadow-md border-2 border-sky-200">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-black text-sky-900 text-lg">🔍 題目小檔案</h3>
+              <button id="hm-detail-speak" onclick="speakSelectedHeatmapFact()" type="button"
+                class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold text-sm">
+                🔊 朗讀
+              </button>
+            </div>
+            <div class="flex items-center justify-between bg-sky-50 rounded-2xl p-3.5 mb-3">
+              <div>
+                <div id="hm-detail-eq" class="font-num font-bold text-3xl text-slate-800">7 × 8 = 56</div>
+                <div id="hm-detail-mnemonic" class="text-sm font-black text-amber-700 mt-0.5">口訣：七八五十六</div>
+              </div>
+              <span id="hm-detail-status" class="px-3 py-1 rounded-full text-xs font-black bg-slate-200 text-slate-600">未練習</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center mb-3">
+              <div class="bg-slate-50 rounded-xl p-2">
+                <div class="text-xs text-slate-500 font-bold">總作答</div>
+                <div id="hm-detail-attempts" class="font-num font-bold text-xl text-slate-700">0</div>
+              </div>
+              <div class="bg-emerald-50 rounded-xl p-2">
+                <div class="text-xs text-emerald-700 font-bold">答對</div>
+                <div id="hm-detail-correct" class="font-num font-bold text-xl text-emerald-600">0</div>
+              </div>
+              <div class="bg-rose-50 rounded-xl p-2">
+                <div class="text-xs text-rose-700 font-bold">答錯</div>
+                <div id="hm-detail-wrong" class="font-num font-bold text-xl text-rose-500">0</div>
+              </div>
+            </div>
+            <div id="hm-detail-dots" class="flex flex-col items-center gap-1 py-2 bg-amber-50/50 rounded-2xl border border-amber-100">
+              <!-- 小型點點預覽 -->
+            </div>
+          </div>
+
+          <!-- 最常錯排行榜 -->
+          <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-md border-2 border-rose-200">
+            <h3 class="font-black text-rose-900 text-lg flex items-center gap-2 mb-3">
+              <span>🏆</span><span>最常錯排行榜</span>
+            </h3>
+            <div id="top-mistakes-list" class="space-y-2">
+              <!-- 由 JS 動態產生 -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 分頁 5：十十乘法表小幫手 (#view-helper)                   -->
+    <!-- ========================================================= -->
+    <section id="view-helper" class="hidden space-y-5">
+
+      <!-- 選擇 1~10 乘法表與遮蔽答案開關 -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-md border-2 border-emerald-200 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-800">📖 十十乘法表小幫手</h2>
+            <p class="text-xs sm:text-sm text-slate-500 font-bold">點選數字先複習，點擊任一算式會畫出點點圖並唸給你聽喔！</p>
+          </div>
+          <label class="inline-flex items-center gap-2 bg-amber-50 border-2 border-amber-200 px-4 py-2 rounded-2xl cursor-pointer">
+            <input id="chk-helper-hide" type="checkbox" onchange="renderHelperTable()" class="w-5 h-5 accent-amber-500 cursor-pointer" />
+            <span class="font-black text-amber-900 text-sm">🙈 遮住答案考考自己</span>
+          </label>
+        </div>
+
+        <!-- 1~10 頁籤按鈕 -->
+        <div id="helper-table-tabs" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+          <!-- 由 JS 動態產生 -->
+        </div>
+      </div>
+
+      <!-- 算式列表 + 視覺點點圖舞台 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- 10 道算式卡片 -->
+        <div id="helper-equations-list" class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
+          <!-- 由 JS 動態產生 -->
+        </div>
+
+        <!-- 點點陣列互動展示舞台 -->
+        <div class="lg:col-span-6 lg:sticky lg:top-4 bg-white rounded-3xl p-5 sm:p-6 shadow-md border-4 border-sky-200 text-center">
+          <div class="inline-block px-3.5 py-1 rounded-full bg-sky-100 text-sky-800 font-black text-xs mb-3">
+            ✨ 視覺化乘法點點陣列
+          </div>
+          <div id="helper-stage-eq" class="font-num font-bold text-4xl sm:text-5xl text-slate-800 mb-2">
+            2 × 1 = 2
+          </div>
+          <div class="flex items-center justify-center gap-2 mb-4">
+            <span id="helper-stage-mnemonic" class="px-4 py-1.5 rounded-2xl bg-amber-100 text-amber-900 font-black text-lg">
+              口訣：二一得二
+            </span>
+            <button onclick="speakHelperSelected()" type="button"
+              class="btn-3d btn-3d-sky px-4 py-2 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-sm">
+              🔊 唸一遍
+            </button>
+          </div>
+
+          <p id="helper-stage-caption" class="text-sm font-bold text-slate-600 mb-4">
+            有 2 排，每排有 1 顆點點，合起來一共有 2 顆！
+          </p>
+
+          <div id="helper-stage-dots" class="flex flex-col items-center gap-1.5 sm:gap-2 p-4 bg-amber-50/60 rounded-2xl border-2 border-amber-100 min-h-[160px] justify-center overflow-x-auto">
+            <!-- 由 JS 動態繪製點點圖 -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 頁尾友善提示 -->
+    <footer class="mt-8 text-center text-xs sm:text-sm font-bold text-slate-400 pb-4">
+      🌟 鍵盤快捷鍵（練習時）：<span class="text-slate-500">空白鍵</span> 看答案・<span class="text-slate-500">→</span> 答對・<span class="text-slate-500">←</span> 答錯・<span class="text-slate-500">P</span> 暫停
+    </footer>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 核心邏輯腳本                                              -->
+  <!-- ========================================================= -->
+  <script>
+    /**
+     * ===========================================================
+     * 1. 常數設定與二年級常見易錯大魔王題庫
+     * ===========================================================
+     */
+    const STORAGE_KEYS = {
+      STATS: 'mul_master_tw_stats_v1',
+      SETTINGS: 'mul_master_tw_settings_v1'
+    };
+
+    // 國小二年級最容易背錯的經典大魔王乘法題
+    const COMMON_HARD_FACTS = [
+      [6, 7], [7, 6], [6, 8], [8, 6], [6, 9], [9, 6],
+      [7, 8], [8, 7], [7, 9], [9, 7], [8, 9], [9, 8],
+      [7, 7], [8, 8], [9, 9], [6, 6],
+      [4, 7], [7, 4], [4, 8], [8, 4], [4, 9], [9, 4],
+      [3, 7], [7, 3], [3, 8], [8, 3]
+    ];
+
+    // 點點陣列每一排的可愛馬卡龍色系
+    const DOT_ROW_COLORS = [
+      'bg-rose-400', 'bg-orange-400', 'bg-amber-400', 'bg-emerald-400', 'bg-teal-400',
+      'bg-sky-400', 'bg-blue-400', 'bg-indigo-400', 'bg-purple-400', 'bg-pink-400'
+    ];
+
+    // 1~10 乘法表按鈕對應的活潑色彩
+    const TABLE_COLORS = {
+      1: 'from-rose-400 to-rose-500 border-rose-500',
+      2: 'from-orange-400 to-orange-500 border-orange-500',
+      3: 'from-amber-400 to-amber-500 border-amber-500',
+      4: 'from-lime-500 to-emerald-500 border-emerald-500',
+      5: 'from-emerald-400 to-teal-500 border-teal-500',
+      6: 'from-cyan-400 to-sky-500 border-sky-500',
+      7: 'from-blue-400 to-indigo-500 border-indigo-500',
+      8: 'from-violet-400 to-purple-500 border-purple-500',
+      9: 'from-fuchsia-400 to-pink-500 border-pink-500',
+      10: 'from-amber-500 to-rose-500 border-rose-500'
+    };
+
+    /**
+     * ===========================================================
+     * 2. 應用程式狀態 (State)
+     * ===========================================================
+     */
+    const state = {
+      activeTab: 'setup', // 'setup' | 'quiz' | 'summary' | 'heatmap' | 'helper'
+
+      // 使用者偏好設定（會同步至 localStorage）
+      settings: {
+        sfxEnabled: true,
+        voiceEnabled: true,
+        practiceMode: 'normal', // 'normal' | 'weakness'
+        selectedTables: [2, 3, 4, 5],
+        order: 'random', // 'random' | 'sequential'
+        questionCount: 20,
+        timerMode: 'countup', // 'countup' | 'countdown'
+        countdownSeconds: 60,
+        includeCommonHard: true
+      },
+
+      // 個人答題紀錄：{ "7_8": { attempts, correct, wrong, lastWrong, updatedAt } }
+      stats: {},
+
+      // 進行中的測驗狀態
+      quiz: {
+        active: false,
+        paused: false,
+        modeLabel: '📚 一般練習',
+        questions: [], // [{ a, b, isWeak }]
+        currentIndex: 0,
+        revealed: false,
+        dotHintOpen: false,
+        correctCount: 0,
+        wrongCount: 0,
+        sessionWrong: [], // [{ a, b }]
+        timerInterval: null,
+        elapsedSeconds: 0,
+        remainingSeconds: 60,
+        timerMode: 'countup',
+        finishedByTimeout: false,
+        lastConfig: null // 用於「再玩一次」
+      },
+
+      // 熱圖選中題目
+      heatmapSelected: { a: 7, b: 8 },
+
+      // 小幫手選中表與算式
+      helper: {
+        table: 2,
+        selectedB: 1,
+        revealedCells: {} // 遮住答案模式下的個別翻開狀態
+      }
+    };
+
+    /**
+     * ===========================================================
+     * 3. 台灣國小九九／十十乘法口訣產生器
+     * ===========================================================
+     */
+    const CN_DIGITS = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+
+    function numberToChinese(n) {
+      if (n <= 10) return CN_DIGITS[n];
+      if (n < 20) return '十' + CN_DIGITS[n % 10];
+      if (n === 100) return '一百';
+      const tens = Math.floor(n / 10);
+      const ones = n % 10;
+      return CN_DIGITS[tens] + '十' + (ones > 0 ? CN_DIGITS[ones] : '');
+    }
+
+    /**
+     * 產生道地且清晰易懂的繁體中文乘法口訣
+     */
+    function getMnemonic(a, b) {
+      const p = a * b;
+      // 10 的乘法採用清楚無歧義的念法
+      if (a === 10 && b === 10) return '十乘十得一百';
+      if (a === 10) return `十乘${CN_DIGITS[b]}得${numberToChinese(p)}`;
+      if (b === 10) return `${CN_DIGITS[a]}乘十得${numberToChinese(p)}`;
+
+      // 1~9 經典九九乘法口訣
+      const head = `${CN_DIGITS[a]}${CN_DIGITS[b]}`;
+      if (p < 10) return `${head}得${CN_DIGITS[p]}`;
+      if (p === 10) return `${head}一十`;
+      return `${head}${numberToChinese(p)}`;
+    }
+
+    function factKey(a, b) {
+      return `${a}_${b}`;
+    }
+
+    /**
+     * ===========================================================
+     * 4. Web Audio API 溫和音效引擎（無外部音檔）
+     * ===========================================================
+     */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, duration, type = 'sine', volume = 0.14, startOffset = 0) {
+      if (!state.settings.sfxEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime + startOffset;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(volume, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      } catch (err) {
+        // 忽略瀏覽器音訊限制錯誤
+      }
+    }
+
+    const SFX = {
+      click() {
+        playTone(580, 0.06, 'sine', 0.08);
+      },
+      flip() {
+        playTone(392, 0.08, 'triangle', 0.12, 0);
+        playTone(523.25, 0.11, 'sine', 0.12, 0.05);
+      },
+      correct() {
+        playTone(523.25, 0.12, 'sine', 0.14, 0);
+        playTone(659.25, 0.12, 'sine', 0.14, 0.08);
+        playTone(783.99, 0.22, 'triangle', 0.16, 0.16);
+      },
+      wrong() {
+        // 溫柔不刺耳的木琴提示音
+        playTone(349.23, 0.16, 'triangle', 0.12, 0);
+        playTone(293.66, 0.24, 'sine', 0.12, 0.13);
+      },
+      tickWarn() {
+        playTone(660, 0.05, 'sine', 0.06);
+      },
+      fanfare() {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, idx) => {
+          playTone(n, idx === 3 ? 0.45 : 0.14, 'triangle', 0.15, idx * 0.11);
+        });
+      }
+    };
+
+    /**
+     * ===========================================================
+     * 5. Web Speech API 中文語音朗讀 (zh-TW)
+     * ===========================================================
+     */
+    function speakText(text) {
+      if (!state.settings.voiceEnabled) return;
+      try {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-TW';
+        utter.rate = 0.95;
+        utter.pitch = 1.08;
+
+        // 優先挑選台灣繁體中文語音
+        const voices = window.speechSynthesis.getVoices();
+        const twVoice = voices.find(v => v.lang === 'zh-TW') || voices.find(v => v.lang.startsWith('zh'));
+        if (twVoice) utter.voice = twVoice;
+
+        window.speechSynthesis.speak(utter);
+      } catch (err) {
+        // 忽略不支援語音的裝置
+      }
+    }
+
+    function stopSpeech() {
+      try {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      } catch (err) {}
+    }
+
+    /**
+     * ===========================================================
+     * 6. localStorage 資料讀寫與統計輔助函式
+     * ===========================================================
+     */
+    function loadData() {
+      try {
+        const savedStats = localStorage.getItem(STORAGE_KEYS.STATS);
+        if (savedStats) {
+          state.stats = JSON.parse(savedStats) || {};
+        }
+        const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+          state.settings = { ...state.settings, ...parsed };
+        }
+      } catch (err) {
+        console.warn('讀取本機紀錄失敗，將使用預設值。', err);
+      }
+    }
+
+    function saveStats() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(state.stats));
+      } catch (err) {
+        console.warn('儲存答題紀錄失敗', err);
+      }
+      updateWrongBadgeAndSummary();
+    }
+
+    function saveSettings() {
+      try {
+        const chkHard = document.getElementById('chk-include-hard');
+        if (chkHard) state.settings.includeCommonHard = chkHard.checked;
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(state.settings));
+      } catch (err) {
+        console.warn('儲存設定失敗', err);
+      }
+    }
+
+    function recordFactResult(a, b, isCorrect) {
+      const key = factKey(a, b);
+      if (!state.stats[key]) {
+        state.stats[key] = { attempts: 0, correct: 0, wrong: 0, lastWrong: false, updatedAt: Date.now() };
+      }
+      const entry = state.stats[key];
+      entry.attempts += 1;
+      if (isCorrect) {
+        entry.correct += 1;
+        entry.lastWrong = false;
+      } else {
+        entry.wrong += 1;
+        entry.lastWrong = true;
+      }
+      entry.updatedAt = Date.now();
+      saveStats();
+    }
+
+    /**
+     * 判斷單題熟練等級：'unpracticed' | 'mastered' | 'learning' | 'weak'
+     */
+    function getFactMasteryLevel(a, b) {
+      const rec = state.stats[factKey(a, b)];
+      if (!rec || rec.attempts === 0) return 'unpracticed';
+      const accuracy = rec.correct / rec.attempts;
+      if (accuracy >= 0.85 && !rec.lastWrong) return 'mastered';
+      if (accuracy < 0.65 || (rec.wrong >= 2 && accuracy < 0.8) || (rec.lastWrong && rec.wrong >= 1)) return 'weak';
+      return 'learning';
+    }
+
+    /**
+     * 取得所有曾答錯過的題目並依錯題嚴重程度排序
+     */
+    function getSortedMistakeFacts() {
+      const list = [];
+      for (let a = 1; a <= 10; a++) {
+        for (let b = 1; b <= 10; b++) {
+          const rec = state.stats[factKey(a, b)];
+          if (rec && rec.wrong > 0) {
+            const errorRate = rec.wrong / rec.attempts;
+            // 權重計算：錯越多、錯誤率越高、最近一次答錯越優先
+            const weight = rec.wrong * 4 + errorRate * 6 + (rec.lastWrong ? 3 : 0);
+            list.push({ a, b, ...rec, errorRate, weight });
+          }
+        }
+      }
+      list.sort((x, y) => y.wrong - x.wrong || y.errorRate - x.errorRate || y.updatedAt - x.updatedAt);
+      return list;
+    }
+
+    /**
+     * ===========================================================
+     * 7. 通用 UI 工具：Toast、自訂 Modal、點點陣列繪製
+     * ===========================================================
+     */
+    let toastTimer = null;
+    function showToast(msg, icon = '✨') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      el.querySelector('span:first-child').textContent = icon;
+      el.classList.remove('opacity-0', '-translate-y-3');
+      el.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.add('opacity-0', '-translate-y-3');
+        el.classList.remove('opacity-100', 'translate-y-0');
+      }, 2400);
+    }
+
+    function showModal({ icon = '🌟', title = '小提醒', body = '', buttons = [] }) {
+      const modal = document.getElementById('custom-modal');
+      document.getElementById('modal-icon').textContent = icon;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').textContent = body;
+
+      const actionsEl = document.getElementById('modal-actions');
+      actionsEl.innerHTML = '';
+      buttons.forEach(btn => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = btn.label;
+        b.className = btn.className || 'btn-3d btn-3d-amber px-6 py-3 rounded-2xl bg-amber-400 text-amber-950 font-black text-base';
+        b.onclick = () => {
+          closeModal();
+          if (btn.onClick) btn.onClick();
+        };
+        actionsEl.appendChild(b);
+      });
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('custom-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function isModalOpen() {
+      return !document.getElementById('custom-modal').classList.contains('hidden');
+    }
+
+    /**
+     * 繪製視覺化點點陣列（a 排 × 每排 b 顆點點）
+     */
+    function renderDotArray(containerEl, a, b, compact = false) {
+      containerEl.innerHTML = '';
+      const dotSizeClass = compact
+        ? 'w-2.5 h-2.5 sm:w-3 sm:h-3'
+        : (a > 7 || b > 7 ? 'w-4 h-4 sm:w-5 sm:h-5' : 'w-5 h-5 sm:w-6 sm:h-6');
+
+      for (let row = 0; row < a; row++) {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'flex items-center gap-1.5 sm:gap-2';
+
+        // 排數小標籤
+        if (!compact) {
+          const numEl = document.createElement('span');
+          numEl.className = 'font-num text-xs font-bold text-slate-400 w-5 text-right shrink-0';
+          numEl.textContent = row + 1;
+          rowEl.appendChild(numEl);
+        }
+
+        const dotsWrap = document.createElement('div');
+        dotsWrap.className = compact ? 'flex gap-1' : 'flex gap-1.5 sm:gap-2';
+        const colorClass = DOT_ROW_COLORS[row % DOT_ROW_COLORS.length];
+
+        for (let col = 0; col < b; col++) {
+          const dot = document.createElement('span');
+          dot.className = `${dotSizeClass} ${colorClass} rounded-full inline-block shadow-sm dot-item`;
+          dot.style.animationDelay = `${Math.min((row * b + col) * 8, 260)}ms`;
+          dotsWrap.appendChild(dot);
+        }
+
+        rowEl.appendChild(dotsWrap);
+        containerEl.appendChild(rowEl);
+      }
+    }
+
+    function formatTime(totalSec) {
+      const sec = Math.max(0, Math.floor(totalSec));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    /**
+     * ===========================================================
+     * 8. 頁首控制與分頁導覽
+     * ===========================================================
+     */
+    function toggleSfx() {
+      state.settings.sfxEnabled = !state.settings.sfxEnabled;
+      saveSettings();
+      renderSoundButtons();
+      if (state.settings.sfxEnabled) {
+        SFX.correct();
+        showToast('已開啟音效！', '🔊');
+      } else {
+        showToast('已關閉音效', '🔇');
+      }
+    }
+
+    function toggleVoice() {
+      state.settings.voiceEnabled = !state.settings.voiceEnabled;
+      saveSettings();
+      renderSoundButtons();
+      if (state.settings.voiceEnabled) {
+        speakText('中文語音朗讀已開啟');
+        showToast('已開啟語音朗讀！', '🗣️');
+      } else {
+        stopSpeech();
+        showToast('已關閉語音朗讀', '🤫');
+      }
+    }
+
+    function renderSoundButtons() {
+      const btnSfx = document.getElementById('btn-toggle-sfx');
+      const btnVoice = document.getElementById('btn-toggle-voice');
+
+      document.getElementById('sfx-icon').textContent = state.settings.sfxEnabled ? '🔊' : '🔇';
+      btnSfx.className = state.settings.sfxEnabled
+        ? 'btn-3d btn-3d-slate flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-800 text-sm sm:text-base font-bold'
+        : 'btn-3d btn-3d-slate flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 border-slate-200 bg-slate-100 text-slate-400 text-sm sm:text-base font-bold';
+
+      document.getElementById('voice-icon').textContent = state.settings.voiceEnabled ? '🗣️' : '🤫';
+      btnVoice.className = state.settings.voiceEnabled
+        ? 'btn-3d btn-3d-slate flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 border-sky-300 bg-sky-50 text-sky-800 text-sm sm:text-base font-bold'
+        : 'btn-3d btn-3d-slate flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 border-slate-200 bg-slate-100 text-slate-400 text-sm sm:text-base font-bold';
+    }
+
+    function handleHeaderLogoClick() {
+      if (state.activeTab === 'quiz' && state.quiz.active) {
+        confirmQuitQuiz();
+      } else {
+        switchTab('setup');
+      }
+    }
+
+    function switchTab(tabName) {
+      SFX.click();
+      stopSpeech();
+      stopConfetti();
+      if (state.quiz.timerInterval) {
+        clearInterval(state.quiz.timerInterval);
+        state.quiz.timerInterval = null;
+      }
+      state.quiz.active = false;
+      state.activeTab = tabName;
+
+      // 切換各主畫面顯示
+      ['setup', 'quiz', 'summary', 'heatmap', 'helper'].forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.toggle('hidden', v !== tabName);
+      });
+
+      // 測驗與結算時隱藏頂部主分頁列
+      const nav = document.getElementById('main-nav');
+      nav.classList.toggle('hidden', tabName === 'quiz');
+
+      // 更新導覽按鈕樣式
+      const tabs = [
+        { id: 'setup', activeClass: 'bg-amber-400 text-amber-950 border-amber-500 btn-3d-amber' },
+        { id: 'heatmap', activeClass: 'bg-purple-500 text-white border-purple-600 btn-3d-purple' },
+        { id: 'helper', activeClass: 'bg-emerald-500 text-white border-emerald-600 btn-3d-emerald' }
+      ];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t.id}`);
+        if (tabName === t.id) {
+          btn.className = `btn-3d py-3 sm:py-3.5 px-2 sm:px-4 rounded-2xl font-black text-sm sm:text-lg border-2 flex items-center justify-center gap-1.5 sm:gap-2 transition-all relative ${t.activeClass}`;
+        } else {
+          btn.className = 'btn-3d btn-3d-slate py-3 sm:py-3.5 px-2 sm:px-4 rounded-2xl font-black text-sm sm:text-lg border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center gap-1.5 sm:gap-2 transition-all relative';
+        }
+      });
+
+      // 進入特定分頁時刷新內容
+      if (tabName === 'setup') {
+        renderSetupUI();
+      } else if (tabName === 'heatmap') {
+        renderHeatmapView();
+      } else if (tabName === 'helper') {
+        renderHelperView();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /**
+     * ===========================================================
+     * 9. 練習設定畫面邏輯 (#view-setup)
+     * ===========================================================
+     */
+    function renderSetupUI() {
+      // 模式按鈕樣式
+      const isNormal = state.settings.practiceMode === 'normal';
+      const normalBtn = document.getElementById('mode-normal-btn');
+      const weakBtn = document.getElementById('mode-weakness-btn');
+
+      normalBtn.className = isNormal
+        ? 'p-4 rounded-2xl text-left transition-all flex items-center gap-3.5 border-2 border-sky-400 bg-sky-50 shadow-md ring-2 ring-sky-200'
+        : 'p-4 rounded-2xl text-left transition-all flex items-center gap-3.5 border-2 border-slate-200 bg-white hover:bg-slate-50';
+
+      weakBtn.className = !isNormal
+        ? 'p-4 rounded-2xl text-left transition-all flex items-center gap-3.5 border-2 border-rose-400 bg-rose-50 shadow-md ring-2 ring-rose-200'
+        : 'p-4 rounded-2xl text-left transition-all flex items-center gap-3.5 border-2 border-slate-200 bg-white hover:bg-slate-50';
+
+      document.getElementById('setup-normal-panel').classList.toggle('hidden', !isNormal);
+      document.getElementById('setup-weakness-panel').classList.toggle('hidden', isNormal);
+
+      // 渲染 1~10 乘法表大按鈕
+      const grid = document.getElementById('table-buttons-grid');
+      grid.innerHTML = '';
+      for (let n = 1; n <= 10; n++) {
+        const selected = state.settings.selectedTables.includes(n);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => toggleTableNumber(n);
+        btn.className = selected
+          ? `btn-3d py-3.5 sm:py-4 rounded-2xl font-num font-bold text-2xl sm:text-3xl text-white bg-gradient-to-b ${TABLE_COLORS[n]} border-2 shadow-md transform -translate-y-0.5`
+          : 'btn-3d btn-3d-slate py-3.5 sm:py-4 rounded-2xl font-num font-bold text-2xl sm:text-3xl text-slate-400 bg-slate-50 hover:bg-amber-50 border-2 border-slate-200';
+        btn.innerHTML = `<span>${n}</span>`;
+        grid.appendChild(btn);
+      }
+
+      // 顯示已選清單
+      const summaryEl = document.getElementById('selected-tables-summary');
+      if (state.settings.selectedTables.length === 0) {
+        summaryEl.textContent = '尚未選擇（請至少點選 1 個數字）';
+        summaryEl.className = 'text-rose-500 font-black';
+      } else {
+        const sorted = [...state.settings.selectedTables].sort((a, b) => a - b);
+        summaryEl.textContent = sorted.join('、');
+        summaryEl.className = 'text-amber-700 font-black font-num';
+      }
+
+      // 出題順序
+      const isRand = state.settings.order === 'random';
+      document.getElementById('order-random-btn').className = isRand
+        ? 'px-4 py-2 rounded-xl text-sm font-black bg-white text-amber-700 shadow-sm'
+        : 'px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700';
+      document.getElementById('order-seq-btn').className = !isRand
+        ? 'px-4 py-2 rounded-xl text-sm font-black bg-white text-amber-700 shadow-sm'
+        : 'px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700';
+
+      // 題數按鈕與輸入框
+      document.querySelectorAll('.qcount-btn').forEach(btn => {
+        const val = Number(btn.dataset.qcount);
+        const active = state.settings.questionCount === val;
+        btn.className = active
+          ? 'qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 border-emerald-500 bg-emerald-500 text-white shadow-sm'
+          : 'qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50';
+      });
+      const customQInput = document.getElementById('custom-qcount');
+      if (Number(customQInput.value) !== state.settings.questionCount) {
+        customQInput.value = state.settings.questionCount;
+      }
+
+      // 計時器模式
+      const isUp = state.settings.timerMode === 'countup';
+      document.getElementById('timer-up-btn').className = isUp
+        ? 'p-3 rounded-2xl border-2 border-sky-500 bg-sky-500 text-white font-bold text-sm sm:text-base flex flex-col items-center gap-1 shadow-sm'
+        : 'p-3 rounded-2xl border-2 border-sky-200 bg-white text-sky-700 hover:bg-sky-50 font-bold text-sm sm:text-base flex flex-col items-center gap-1';
+      document.getElementById('timer-down-btn').className = !isUp
+        ? 'p-3 rounded-2xl border-2 border-sky-500 bg-sky-500 text-white font-bold text-sm sm:text-base flex flex-col items-center gap-1 shadow-sm'
+        : 'p-3 rounded-2xl border-2 border-sky-200 bg-white text-sky-700 hover:bg-sky-50 font-bold text-sm sm:text-base flex flex-col items-center gap-1';
+
+      document.getElementById('countdown-options').classList.toggle('hidden', isUp);
+      document.getElementById('countup-info').classList.toggle('hidden', !isUp);
+
+      document.querySelectorAll('.sec-btn').forEach(btn => {
+        const sec = Number(btn.dataset.sec);
+        const active = state.settings.countdownSeconds === sec;
+        btn.className = active
+          ? 'sec-btn py-2 rounded-xl font-bold text-sm border-2 border-sky-500 bg-sky-500 text-white'
+          : 'sec-btn py-2 rounded-xl font-bold text-sm border-2 border-sky-200 bg-white text-sky-800 hover:bg-sky-100';
+      });
+      const customSecInput = document.getElementById('custom-seconds');
+      if (Number(customSecInput.value) !== state.settings.countdownSeconds) {
+        customSecInput.value = state.settings.countdownSeconds;
+      }
+
+      document.getElementById('chk-include-hard').checked = state.settings.includeCommonHard;
+      updateWrongBadgeAndSummary();
+    }
+
+    function updateWrongBadgeAndSummary() {
+      const mistakes = getSortedMistakeFacts();
+      const badge = document.getElementById('nav-wrong-badge');
+      if (mistakes.length > 0) {
+        badge.textContent = mistakes.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      const statusText = document.getElementById('weakness-status-text');
+      if (statusText) {
+        if (mistakes.length > 0) {
+          statusText.innerHTML = `目前個人錯題庫共有 <span class="font-num text-xl text-rose-600">${mistakes.length}</span> 題需要加強！`;
+        } else {
+          statusText.innerHTML = `目前還沒有個人錯題紀錄喔！可勾選下方加入「二年級常見易錯大魔王題」開始特訓 💪`;
+        }
+      }
+    }
+
+    function setPracticeMode(mode) {
+      SFX.click();
+      state.settings.practiceMode = mode;
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function toggleTableNumber(n) {
+      SFX.click();
+      const idx = state.settings.selectedTables.indexOf(n);
+      if (idx >= 0) {
+        state.settings.selectedTables.splice(idx, 1);
+      } else {
+        state.settings.selectedTables.push(n);
+      }
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function applyTablePreset(preset) {
+      SFX.click();
+      const presets = {
+        all: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        basic: [1, 2, 5, 10],
+        mid: [3, 4, 6],
+        boss: [7, 8, 9],
+        clear: []
+      };
+      state.settings.selectedTables = [...(presets[preset] || [])];
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function setQuestionOrder(order) {
+      SFX.click();
+      state.settings.order = order;
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function setQuestionCount(count) {
+      SFX.click();
+      state.settings.questionCount = Math.min(100, Math.max(1, count));
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function onCustomQCountInput(val) {
+      const n = parseInt(val, 10);
+      if (!isNaN(n) && n >= 1 && n <= 100) {
+        state.settings.questionCount = n;
+        saveSettings();
+        // 只更新按鈕高亮不重設輸入框游標
+        document.querySelectorAll('.qcount-btn').forEach(btn => {
+          const active = Number(btn.dataset.qcount) === n;
+          btn.className = active
+            ? 'qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 border-emerald-500 bg-emerald-500 text-white shadow-sm'
+            : 'qcount-btn py-3 rounded-2xl font-num font-bold text-lg border-2 border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50';
+        });
+      }
+    }
+
+    function setTimerMode(mode) {
+      SFX.click();
+      state.settings.timerMode = mode;
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function setCountdownSeconds(sec) {
+      SFX.click();
+      state.settings.countdownSeconds = Math.min(1800, Math.max(10, sec));
+      saveSettings();
+      renderSetupUI();
+    }
+
+    function onCustomSecondsInput(val) {
+      const s = parseInt(val, 10);
+      if (!isNaN(s) && s >= 10 && s <= 1800) {
+        state.settings.countdownSeconds = s;
+        saveSettings();
+        document.querySelectorAll('.sec-btn').forEach(btn => {
+          const active = Number(btn.dataset.sec) === s;
+          btn.className = active
+            ? 'sec-btn py-2 rounded-xl font-bold text-sm border-2 border-sky-500 bg-sky-500 text-white'
+            : 'sec-btn py-2 rounded-xl font-bold text-sm border-2 border-sky-200 bg-white text-sky-800 hover:bg-sky-100';
+        });
+      }
+    }
+
+    /**
+     * ===========================================================
+     * 10. 出題演算法（一般模式／依序／加權錯題加強模式）
+     * ===========================================================
+     */
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    /**
+     * 建立自選乘法表題組
+     */
+    function generateNormalQuestions(tables, count, order) {
+      const sortedTables = [...tables].sort((a, b) => a - b);
+      const basePool = [];
+      for (const a of sortedTables) {
+        for (let b = 1; b <= 10; b++) {
+          basePool.push({ a, b, isWeak: false });
+        }
+      }
+
+      const result = [];
+      if (order === 'sequential') {
+        // 依序練習：按照乘法表順序出題，若題數超過題庫則循環
+        for (let i = 0; i < count; i++) {
+          result.push({ ...basePool[i % basePool.length] });
+        }
+      } else {
+        // 隨機出題：盡量不連續出現同一題，且先輪完一輪再重複
+        let bag = shuffleArray(basePool);
+        while (result.length < count) {
+          if (bag.length === 0) bag = shuffleArray(basePool);
+          let next = bag.pop();
+          // 若與上一題完全相同且還有其他選擇，重新排入
+          if (result.length > 0 && bag.length > 0) {
+            const prev = result[result.length - 1];
+            if (prev.a === next.a && prev.b === next.b) {
+              bag.unshift(next);
+              next = bag.pop();
+            }
+          }
+          result.push({ ...next });
+        }
+      }
+      return result;
+    }
+
+    /**
+     * 建立加權錯題加強題組
+     */
+    function generateWeaknessQuestions(count, includeCommonHard) {
+      const mistakes = getSortedMistakeFacts();
+      const weightedPool = [];
+      const seenKeys = new Set();
+
+      // 1. 優先放入個人歷史錯題（依答錯次數與錯誤率加權）
+      mistakes.forEach(m => {
+        weightedPool.push({ a: m.a, b: m.b, weight: m.weight, isWeak: true });
+        seenKeys.add(factKey(m.a, m.b));
+      });
+
+      // 2. 若勾選自動補足二年級常見易錯大魔王題
+      if (includeCommonHard) {
+        COMMON_HARD_FACTS.forEach(([a, b]) => {
+          const k = factKey(a, b);
+          if (!seenKeys.has(k)) {
+            // 若個人錯題很少，常見大魔王題給中等權重補足；若個人錯題多，個人錯題權重更高
+            weightedPool.push({ a, b, weight: mistakes.length > 0 ? 1.8 : 3, isWeak: true });
+            seenKeys.add(k);
+          }
+        });
+      }
+
+      if (weightedPool.length === 0) return [];
+
+      // 依權重進行不連續重複抽題
+      const totalWeight = weightedPool.reduce((sum, item) => sum + item.weight, 0);
+      const result = [];
+
+      function pickWeighted() {
+        let r = Math.random() * totalWeight;
+        for (const item of weightedPool) {
+          r -= item.weight;
+          if (r <= 0) return item;
+        }
+        return weightedPool[weightedPool.length - 1];
+      }
+
+      for (let i = 0; i < count; i++) {
+        let picked = pickWeighted();
+        // 避免相鄰兩題完全一樣（當題庫大於 1 題時）
+        if (result.length > 0 && weightedPool.length > 1) {
+          let tries = 0;
+          const prev = result[result.length - 1];
+          while (picked.a === prev.a && picked.b === prev.b && tries < 8) {
+            picked = pickWeighted();
+            tries++;
+          }
+        }
+        result.push({ a: picked.a, b: picked.b, isWeak: true });
+      }
+      return result;
+    }
+
+    /**
+     * ===========================================================
+     * 11. 開始測驗、閃卡翻轉、計時器與結算流程
+     * ===========================================================
+     */
+    function startQuizFromSetup() {
+      // 驗證自訂輸入值
+      const qCountVal = parseInt(document.getElementById('custom-qcount').value, 10);
+      if (isNaN(qCountVal) || qCountVal < 1 || qCountVal > 100) {
+        showModal({
+          icon: '🔢',
+          title: '題數設定小提醒',
+          body: '請輸入 1 到 100 之間的題數喔！',
+          buttons: [{ label: '好，我知道了！' }]
+        });
+        return;
+      }
+      state.settings.questionCount = qCountVal;
+
+      if (state.settings.timerMode === 'countdown') {
+        const secVal = parseInt(document.getElementById('custom-seconds').value, 10);
+        if (isNaN(secVal) || secVal < 10 || secVal > 1800) {
+          showModal({
+            icon: '⏳',
+            title: '倒數時間小提醒',
+            body: '請設定 10 秒到 1800 秒之間的挑戰時間喔！',
+            buttons: [{ label: '好，我去調整！' }]
+          });
+          return;
+        }
+        state.settings.countdownSeconds = secVal;
+      }
+      saveSettings();
+
+      let questions = [];
+      let modeLabel = '📚 一般練習';
+
+      if (state.settings.practiceMode === 'normal') {
+        if (state.settings.selectedTables.length === 0) {
+          showModal({
+            icon: '👆',
+            title: '還沒選擇乘法表喔！',
+            body: '請先點選至少一個 1～10 的乘法表按鈕，才能開始練習喔！',
+            buttons: [{ label: '好，我來選！' }]
+          });
+          return;
+        }
+        questions = generateNormalQuestions(
+          state.settings.selectedTables,
+          state.settings.questionCount,
+          state.settings.order
+        );
+        modeLabel = state.settings.order === 'sequential' ? '📝 依序練習' : '🎲 隨機練習';
+      } else {
+        questions = generateWeaknessQuestions(
+          state.settings.questionCount,
+          state.settings.includeCommonHard
+        );
+        if (questions.length === 0) {
+          showModal({
+            icon: '🎉',
+            title: '目前沒有個人錯題喔！',
+            body: '太厲害了，你目前還沒有答錯的題目！可以勾選「自動加入二年級常見易錯大魔王題」，或是先用自選乘法表練習看看。',
+            buttons: [{ label: '我知道了！' }]
+          });
+          return;
+        }
+        modeLabel = '🔥 錯題加強';
+      }
+
+      launchQuiz({
+        questions,
+        modeLabel,
+        timerMode: state.settings.timerMode,
+        countdownSeconds: state.settings.countdownSeconds
+      });
+    }
+
+    function launchQuiz(config) {
+      SFX.click();
+      stopConfetti();
+      if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
+
+      state.quiz = {
+        active: true,
+        paused: false,
+        modeLabel: config.modeLabel,
+        questions: config.questions,
+        currentIndex: 0,
+        revealed: false,
+        dotHintOpen: false,
+        correctCount: 0,
+        wrongCount: 0,
+        sessionWrong: [],
+        timerInterval: null,
+        elapsedSeconds: 0,
+        remainingSeconds: config.countdownSeconds || 60,
+        timerMode: config.timerMode || 'countup',
+        finishedByTimeout: false,
+        lastConfig: config
+      };
+
+      // 切換至測驗畫面
+      state.activeTab = 'quiz';
+      ['setup', 'quiz', 'summary', 'heatmap', 'helper'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.toggle('hidden', v !== 'quiz');
+      });
+      document.getElementById('main-nav').classList.add('hidden');
+
+      document.getElementById('quiz-mode-pill').textContent = state.quiz.modeLabel;
+      document.getElementById('hud-total').textContent = state.quiz.questions.length;
+      document.getElementById('pause-overlay').classList.add('hidden');
+      document.getElementById('btn-pause').innerHTML = '⏸️ <span class="hidden sm:inline">暫停</span>';
+
+      updateQuizHUD();
+      renderCurrentQuestion(true);
+      startQuizTimer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startQuizTimer() {
+      if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
+      renderTimerDisplay();
+
+      state.quiz.timerInterval = setInterval(() => {
+        if (!state.quiz.active || state.quiz.paused) return;
+
+        state.quiz.elapsedSeconds += 1;
+
+        if (state.quiz.timerMode === 'countdown') {
+          state.quiz.remainingSeconds -= 1;
+          renderTimerDisplay();
+
+          // 倒數最後 5 秒柔和滴答提醒
+          if (state.quiz.remainingSeconds > 0 && state.quiz.remainingSeconds <= 5) {
+            SFX.tickWarn();
+          }
+
+          if (state.quiz.remainingSeconds <= 0) {
+            state.quiz.finishedByTimeout = true;
+            finishQuiz();
+          }
+        } else {
+          renderTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    function renderTimerDisplay() {
+      const box = document.getElementById('hud-timer-box');
+      const icon = document.getElementById('hud-timer-icon');
+      const text = document.getElementById('hud-timer-text');
+
+      if (state.quiz.timerMode === 'countdown') {
+        icon.textContent = '⏳';
+        text.textContent = formatTime(state.quiz.remainingSeconds);
+        // 剩餘 15 秒內溫和橘紅色跳動提醒
+        if (state.quiz.remainingSeconds <= 15 && state.quiz.remainingSeconds > 0) {
+          box.classList.add('timer-urgent');
+        } else {
+          box.classList.remove('timer-urgent');
+        }
+      } else {
+        icon.textContent = '⏱️';
+        text.textContent = formatTime(state.quiz.elapsedSeconds);
+        box.classList.remove('timer-urgent');
+      }
+    }
+
+    function updateQuizHUD() {
+      const total = state.quiz.questions.length;
+      const idx = state.quiz.currentIndex;
+      document.getElementById('hud-current').textContent = Math.min(idx + 1, total);
+      document.getElementById('hud-correct').textContent = state.quiz.correctCount;
+      document.getElementById('hud-wrong').textContent = state.quiz.wrongCount;
+      const pct = Math.round(((idx) / total) * 100);
+      document.getElementById('hud-progress-bar').style.width = `${Math.max(4, pct)}%`;
+    }
+
+    /**
+     * 渲染當前題目：嚴格確保初始僅顯示算式，不預填答案文字
+     */
+    function renderCurrentQuestion(animatePop = true) {
+      const q = state.quiz.questions[state.quiz.currentIndex];
+      state.quiz.revealed = false;
+      state.quiz.dotHintOpen = false;
+
+      const cardInner = document.getElementById('flashcard-inner');
+      // 取消翻轉並清空背面答案，防止任何換題瞬間露餡
+      cardInner.classList.remove('is-flipped');
+      document.getElementById('back-answer').textContent = '';
+      document.getElementById('back-mnemonic').textContent = '';
+      document.getElementById('back-equation-small').textContent = '';
+
+      // 填入正面算式
+      document.getElementById('front-equation').innerHTML =
+        `${q.a} × ${q.b} = <span class="text-amber-500">?</span>`;
+
+      document.getElementById('card-tag-front').classList.toggle('hidden', !q.isWeak);
+
+      // 收合點點圖提示
+      document.getElementById('dot-hint-panel').classList.add('hidden');
+
+      // 切換底部按鈕：只顯示「看答案」
+      document.getElementById('quiz-actions-hidden').classList.remove('hidden');
+      document.getElementById('quiz-actions-revealed').classList.add('hidden');
+
+      // 換題彈入微動畫
+      if (animatePop) {
+        const wrapper = document.getElementById('flashcard-wrapper');
+        wrapper.classList.remove('animate-card-in');
+        void wrapper.offsetWidth; // 觸發重繪
+        wrapper.classList.add('animate-card-in');
+      }
+
+      updateQuizHUD();
+      // 自動朗讀題目（若語音開啟）
+      speakCurrentQuestion();
+    }
+
+    function speakCurrentQuestion() {
+      if (!state.quiz.active || state.quiz.paused) return;
+      const q = state.quiz.questions[state.quiz.currentIndex];
+      if (!q) return;
+      speakText(`${q.a} 乘以 ${q.b} 等於多少？`);
+    }
+
+    function speakCurrentAnswer() {
+      if (!state.quiz.active || state.quiz.paused) return;
+      const q = state.quiz.questions[state.quiz.currentIndex];
+      if (!q) return;
+      const ans = q.a * q.b;
+      const mnemonic = getMnemonic(q.a, q.b);
+      speakText(`${ans}，${mnemonic}`);
+    }
+
+    function handleCardClick() {
+      if (!state.quiz.active || state.quiz.paused) return;
+      if (!state.quiz.revealed) {
+        revealAnswer();
+      }
+    }
+
+    /**
+     * 翻牌揭曉答案與口訣，並顯示「答對了 / 答錯了」大按鈕
+     */
+    function revealAnswer() {
+      if (!state.quiz.active || state.quiz.paused || state.quiz.revealed) return;
+      const q = state.quiz.questions[state.quiz.currentIndex];
+      const ans = q.a * q.b;
+      const mnemonic = getMnemonic(q.a, q.b);
+
+      // 此時才將答案寫入卡片背面
+      document.getElementById('back-equation-small').textContent = `${q.a} × ${q.b} =`;
+      document.getElementById('back-answer').textContent = ans;
+      document.getElementById('back-mnemonic').textContent = `口訣：${mnemonic}`;
+
+      state.quiz.revealed = true;
+      document.getElementById('flashcard-inner').classList.add('is-flipped');
+
+      // 切換底部操作區：顯示答對／答錯按鈕
+      document.getElementById('quiz-actions-hidden').classList.add('hidden');
+      document.getElementById('quiz-actions-revealed').classList.remove('hidden');
+
+      SFX.flip();
+      speakCurrentAnswer();
+    }
+
+    /**
+     * 切換視覺化點點陣列提示
+     */
+    function toggleDotHint() {
+      if (!state.quiz.active || state.quiz.paused) return;
+      SFX.click();
+      const q = state.quiz.questions[state.quiz.currentIndex];
+      state.quiz.dotHintOpen = !state.quiz.dotHintOpen;
+
+      const panel = document.getElementById('dot-hint-panel');
+      if (state.quiz.dotHintOpen) {
+        document.getElementById('dot-hint-caption').textContent =
+          `有 ${q.a} 排，每排有 ${q.b} 顆點點，一起數數看吧！`;
+        renderDotArray(document.getElementById('dot-hint-grid'), q.a, q.b, false);
+        panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
+      }
+    }
+
+    /**
+     * 提交答對或答錯，寫入本機紀錄並進入下一題
+     */
+    function submitResult(isCorrect) {
+      if (!state.quiz.active || state.quiz.paused || !state.quiz.revealed) return;
+      const q = state.quiz.questions[state.quiz.currentIndex];
+
+      recordFactResult(q.a, q.b, isCorrect);
+
+      if (isCorrect) {
+        state.quiz.correctCount += 1;
+        SFX.correct();
+      } else {
+        state.quiz.wrongCount += 1;
+        SFX.wrong();
+        // 加入本次錯題清單（去重）
+        if (!state.quiz.sessionWrong.some(item => item.a === q.a && item.b === q.b)) {
+          state.quiz.sessionWrong.push({ a: q.a, b: q.b });
+        }
+      }
+
+      stopSpeech();
+      state.quiz.currentIndex += 1;
+
+      if (state.quiz.currentIndex >= state.quiz.questions.length) {
+        finishQuiz();
+      } else {
+        renderCurrentQuestion(true);
+      }
+    }
+
+    function togglePause() {
+      if (!state.quiz.active) return;
+      SFX.click();
+      state.quiz.paused = !state.quiz.paused;
+      const overlay = document.getElementById('pause-overlay');
+      const btn = document.getElementById('btn-pause');
+
+      if (state.quiz.paused) {
+        stopSpeech();
+        overlay.classList.remove('hidden');
+        btn.innerHTML = '▶️ <span class="hidden sm:inline">繼續</span>';
+      } else {
+        overlay.classList.add('hidden');
+        btn.innerHTML = '⏸️ <span class="hidden sm:inline">暫停</span>';
+      }
+    }
+
+    function confirmQuitQuiz() {
+      if (!state.quiz.active) {
+        switchTab('setup');
+        return;
+      }
+      const wasPaused = state.quiz.paused;
+      if (!wasPaused) togglePause();
+
+      showModal({
+        icon: '🏃',
+        title: '要先結束這次練習嗎？',
+        body: '已經作答的題目都幫你存起來了，隨時可以回來繼續練習喔！',
+        buttons: [
+          {
+            label: '繼續練習',
+            className: 'btn-3d btn-3d-emerald px-5 py-3 rounded-2xl bg-emerald-500 text-white font-black',
+            onClick: () => { if (!wasPaused && state.quiz.paused) togglePause(); }
+          },
+          {
+            label: '回主畫面',
+            className: 'btn-3d btn-3d-slate px-5 py-3 rounded-2xl bg-slate-100 text-slate-700 font-bold border border-slate-200',
+            onClick: () => switchTab('setup')
+          }
+        ]
+      });
+    }
+
+    /**
+     * 完成測驗並顯示慶祝結算畫面
+     */
+    function finishQuiz() {
+      state.quiz.active = false;
+      if (state.quiz.timerInterval) {
+        clearInterval(state.quiz.timerInterval);
+        state.quiz.timerInterval = null;
+      }
+      stopSpeech();
+
+      const answered = state.quiz.correctCount + state.quiz.wrongCount;
+      const accuracy = answered > 0 ? Math.round((state.quiz.correctCount / answered) * 100) : 0;
+      const avgSec = answered > 0 ? (state.quiz.elapsedSeconds / answered).toFixed(1) : '0.0';
+
+      // 切換至結算畫面
+      state.activeTab = 'summary';
+      ['setup', 'quiz', 'summary', 'heatmap', 'helper'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.toggle('hidden', v !== 'summary');
+      });
+      document.getElementById('main-nav').classList.remove('hidden');
+
+      // 徽章與標題評語
+      const badge = document.getElementById('summary-badge');
+      badge.textContent = state.quiz.finishedByTimeout
+        ? `⏰ 時間到！共完成 ${answered} / ${state.quiz.questions.length} 題`
+        : `🎉 完成全部 ${answered} 題挑戰！`;
+
+      let stars = 1;
+      let headline = '很棒的開始！多練幾次就會變高手喔！💪';
+      let subtext = '把答錯的題目再複習一遍，下次一定會進步超大！';
+
+      if (answered === 0) {
+        stars = 1;
+        headline = '時間一下子就到囉！再來挑戰一次吧！⏰';
+        subtext = '別灰心，可以先到乘法表小幫手熱身一下喔！';
+      } else if (accuracy === 100 && !state.quiz.finishedByTimeout) {
+        stars = 3;
+        headline = '滿分全對！你是超級十十乘法小達人！🏆';
+        subtext = '太神啦！每一題都答得又快又準，給你大大的掌聲！';
+      } else if (accuracy >= 85) {
+        stars = 3;
+        headline = '表現超級優秀！離滿分只差一點點囉！🌟';
+        subtext = '你對乘法表已經非常熟練了，繼續保持這股氣勢！';
+      } else if (accuracy >= 65) {
+        stars = 2;
+        headline = '做得很好喔！越來越熟練了！👏';
+        subtext = '把下方幾題易錯算式再加強練習，馬上就能拿滿分！';
+      }
+
+      // 動態星星動畫
+      const starsEl = document.getElementById('summary-stars');
+      starsEl.innerHTML = '';
+      for (let i = 1; i <= 3; i++) {
+        const sp = document.createElement('span');
+        sp.textContent = i <= stars ? '⭐' : '☆';
+        sp.className = i <= stars ? 'star-pop inline-block' : 'text-slate-300 inline-block';
+        sp.style.animationDelay = `${(i - 1) * 160}ms`;
+        starsEl.appendChild(sp);
+      }
+
+      document.getElementById('summary-headline').textContent = headline;
+      document.getElementById('summary-subtext').textContent = subtext;
+      document.getElementById('sum-correct').textContent = state.quiz.correctCount;
+      document.getElementById('sum-wrong').textContent = state.quiz.wrongCount;
+      document.getElementById('sum-accuracy').textContent = `${accuracy}%`;
+      document.getElementById('sum-time').textContent = formatTime(state.quiz.elapsedSeconds);
+      document.getElementById('sum-avg-time').textContent = `平均 ${avgSec} 秒/題`;
+
+      // 本次錯題清單
+      const wrongSection = document.getElementById('summary-wrong-section');
+      const wrongListEl = document.getElementById('summary-wrong-list');
+      if (state.quiz.sessionWrong.length > 0) {
+        wrongSection.classList.remove('hidden');
+        wrongListEl.innerHTML = '';
+        state.quiz.sessionWrong.forEach(({ a, b }) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.onclick = () => {
+            SFX.click();
+            speakText(`${a} 乘以 ${b} 等於 ${a * b}，${getMnemonic(a, b)}`);
+          };
+          item.className = 'flex items-center justify-between bg-white hover:bg-amber-50 border-2 border-rose-200 rounded-2xl px-4 py-3 text-left transition-colors';
+          item.innerHTML = `
+            <div>
+              <span class="font-num font-bold text-xl text-slate-800">${a} × ${b} = <span class="text-rose-600">${a * b}</span></span>
+              <div class="text-xs font-bold text-amber-700 mt-0.5">${getMnemonic(a, b)}</div>
+            </div>
+            <span class="text-lg">🔊</span>
+          `;
+          wrongListEl.appendChild(item);
+        });
+        document.getElementById('btn-retry-wrong-text').textContent =
+          `立刻重練本次錯題（${state.quiz.sessionWrong.length} 題）`;
+      } else {
+        wrongSection.classList.add('hidden');
+      }
+
+      SFX.fanfare();
+      if (accuracy >= 60 && answered > 0) {
+        launchConfetti();
+      }
+      speakText(headline.replace(/[^\u4e00-\u9fa50-9，！。]/g, ''));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function retrySessionWrongQuestions() {
+      if (state.quiz.sessionWrong.length === 0) return;
+      const questions = shuffleArray(state.quiz.sessionWrong).map(item => ({
+        a: item.a,
+        b: item.b,
+        isWeak: true
+      }));
+      launchQuiz({
+        questions,
+        modeLabel: '🔥 重練本次錯題',
+        timerMode: 'countup',
+        countdownSeconds: 60
+      });
+    }
+
+    function restartSameQuiz() {
+      if (!state.quiz.lastConfig) {
+        switchTab('setup');
+        return;
+      }
+      // 重新洗牌或依原設定再出一組題目
+      if (state.quiz.modeLabel === '🔥 重練本次錯題') {
+        launchQuiz({
+          ...state.quiz.lastConfig,
+          questions: shuffleArray(state.quiz.lastConfig.questions)
+        });
+      } else {
+        startQuizFromSetup();
+      }
+    }
+
+    /**
+     * ===========================================================
+     * 12. 撒花慶祝動畫 Canvas（支援動態視窗縮放）
+     * ===========================================================
+     */
+    let confettiAnimId = null;
+    let confettiParticles = [];
+
+    function resizeConfettiCanvas() {
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      resizeConfettiCanvas();
+      canvas.style.display = 'block';
+      const ctx = canvas.getContext('2d');
+      const colors = ['#FF6B6B', '#FFD166', '#06D6A0', '#4CC9F0', '#A855F7', '#FB923C'];
+
+      confettiParticles = Array.from({ length: 95 }, () => ({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * canvas.height * 0.5,
+        w: 8 + Math.random() * 8,
+        h: 6 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 3.5,
+        vy: 2.5 + Math.random() * 4,
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.16
+      }));
+
+      let frames = 0;
+      function animateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let activeCount = 0;
+        for (const p of confettiParticles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vRot;
+          if (p.y < canvas.height + 30) activeCount++;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        }
+        frames++;
+        if (activeCount > 0 && frames < 240) {
+          confettiAnimId = requestAnimationFrame(animateConfetti);
+        } else {
+          stopConfetti();
+        }
+      }
+
+      cancelAnimationFrame(confettiAnimId);
+      confettiAnimId = requestAnimationFrame(animateConfetti);
+    }
+
+    function stopConfetti() {
+      cancelAnimationFrame(confettiAnimId);
+      confettiAnimId = null;
+      const canvas = document.getElementById('confetti-canvas');
+      if (canvas) canvas.style.display = 'none';
+    }
+
+    /**
+     * ===========================================================
+     * 13. 錯題本與 10×10 熟練度熱圖 (#view-heatmap)
+     * ===========================================================
+     */
+    function renderHeatmapView() {
+      let practicedCount = 0;
+      let masteredCount = 0;
+      let weakCount = 0;
+
+      const grid = document.getElementById('heatmap-grid');
+      grid.innerHTML = '';
+
+      // 左上角乘號標頭
+      const corner = document.createElement('div');
+      corner.className = 'aspect-square flex items-center justify-center font-num font-black text-amber-600 text-xs sm:text-base bg-amber-50 rounded-lg';
+      corner.textContent = '×';
+      grid.appendChild(corner);
+
+      // 頂部欄標頭 1~10
+      for (let b = 1; b <= 10; b++) {
+        const th = document.createElement('div');
+        th.className = 'aspect-square flex items-center justify-center font-num font-bold text-slate-600 text-xs sm:text-sm bg-amber-50/70 rounded-lg';
+        th.textContent = b;
+        grid.appendChild(th);
+      }
+
+      // 10 列資料格
+      for (let a = 1; a <= 10; a++) {
+        // 左側列標頭
+        const rh = document.createElement('div');
+        rh.className = 'aspect-square flex items-center justify-center font-num font-bold text-slate-600 text-xs sm:text-sm bg-amber-50/70 rounded-lg';
+        rh.textContent = a;
+        grid.appendChild(rh);
+
+        for (let b = 1; b <= 10; b++) {
+          const level = getFactMasteryLevel(a, b);
+          if (level !== 'unpracticed') practicedCount++;
+          if (level === 'mastered') masteredCount++;
+          if (level === 'weak') weakCount++;
+
+          const isSelected = state.heatmapSelected.a === a && state.heatmapSelected.b === b;
+          const levelStyle = {
+            unpracticed: 'bg-slate-100 text-slate-400 hover:bg-slate-200 border-slate-200',
+            mastered: 'bg-emerald-400 text-white hover:bg-emerald-500 border-emerald-500',
+            learning: 'bg-amber-300 text-amber-950 hover:bg-amber-400 border-amber-400',
+            weak: 'bg-rose-400 text-white hover:bg-rose-500 border-rose-500'
+          }[level];
+
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.onclick = () => selectHeatmapFact(a, b);
+          cell.title = `${a} × ${b} = ${a * b}`;
+          cell.className = `aspect-square rounded-lg border font-num font-bold text-[10px] sm:text-xs flex items-center justify-center transition-transform ${levelStyle} ${isSelected ? 'ring-2 sm:ring-3 ring-slate-800 scale-110 z-10' : ''}`;
+          cell.textContent = a * b;
+          grid.appendChild(cell);
+        }
+      }
+
+      document.getElementById('hm-stat-practiced').textContent = practicedCount;
+      document.getElementById('hm-stat-mastered').textContent = masteredCount;
+      document.getElementById('hm-stat-weak').textContent = weakCount;
+
+      renderHeatmapDetailCard();
+      renderTopMistakesList();
+    }
+
+    function selectHeatmapFact(a, b) {
+      SFX.click();
+      state.heatmapSelected = { a, b };
+      renderHeatmapView();
+    }
+
+    function renderHeatmapDetailCard() {
+      const { a, b } = state.heatmapSelected;
+      const rec = state.stats[factKey(a, b)] || { attempts: 0, correct: 0, wrong: 0 };
+      const level = getFactMasteryLevel(a, b);
+
+      const statusMeta = {
+        unpracticed: { text: '未練習', cls: 'bg-slate-200 text-slate-600' },
+        mastered: { text: '🌟 已熟練', cls: 'bg-emerald-100 text-emerald-700' },
+        learning: { text: '🌱 進步中', cls: 'bg-amber-100 text-amber-800' },
+        weak: { text: '🔥 需加強', cls: 'bg-rose-100 text-rose-700' }
+      }[level];
+
+      document.getElementById('hm-detail-eq').textContent = `${a} × ${b} = ${a * b}`;
+      document.getElementById('hm-detail-mnemonic').textContent = `口訣：${getMnemonic(a, b)}`;
+      const badge = document.getElementById('hm-detail-status');
+      badge.textContent = statusMeta.text;
+      badge.className = `px-3 py-1 rounded-full text-xs font-black ${statusMeta.cls}`;
+
+      document.getElementById('hm-detail-attempts').textContent = rec.attempts;
+      document.getElementById('hm-detail-correct').textContent = rec.correct;
+      document.getElementById('hm-detail-wrong').textContent = rec.wrong;
+
+      renderDotArray(document.getElementById('hm-detail-dots'), a, b, true);
+    }
+
+    function speakSelectedHeatmapFact() {
+      const { a, b } = state.heatmapSelected;
+      SFX.click();
+      speakText(`${a} 乘以 ${b} 等於 ${a * b}，${getMnemonic(a, b)}`);
+    }
+
+    function renderTopMistakesList() {
+      const listEl = document.getElementById('top-mistakes-list');
+      const mistakes = getSortedMistakeFacts().slice(0, 8);
+      listEl.innerHTML = '';
+
+      if (mistakes.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-center py-6 bg-emerald-50/70 rounded-2xl border border-emerald-100">
+            <div class="text-3xl mb-1">🎉</div>
+            <p class="font-bold text-emerald-800 text-sm">目前還沒有錯題紀錄！</p>
+            <p class="text-xs text-emerald-600 mt-1">開始練習後，容易錯的題目會自動整理在這裡喔～</p>
+          </div>
+        `;
+        return;
+      }
+
+      mistakes.forEach((m, idx) => {
+        const acc = Math.round((m.correct / m.attempts) * 100);
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.onclick = () => {
+          selectHeatmapFact(m.a, m.b);
+          speakText(`${m.a} 乘以 ${m.b} 等於 ${m.a * m.b}，${getMnemonic(m.a, m.b)}`);
+        };
+        row.className = 'w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50/60 hover:bg-rose-100/70 border border-rose-200 transition-colors text-left';
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-rose-500 text-white font-num font-bold text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
+            <div>
+              <span class="font-num font-bold text-lg text-slate-800">${m.a} × ${m.b} = <span class="text-rose-600">${m.a * m.b}</span></span>
+              <span class="text-xs font-bold text-slate-500 ml-1.5">(${getMnemonic(m.a, m.b)})</span>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-rose-500 text-white font-num font-bold text-xs">錯 ${m.wrong} 次</span>
+            <div class="text-[11px] font-bold text-slate-500 mt-0.5">正確率 ${acc}%</div>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function launchWeaknessPracticeDirect() {
+      const questions = generateWeaknessQuestions(
+        Math.min(20, state.settings.questionCount || 20),
+        true
+      );
+      launchQuiz({
+        questions,
+        modeLabel: '🔥 錯題加強特訓',
+        timerMode: 'countup',
+        countdownSeconds: 60
+      });
+    }
+
+    function confirmResetStats() {
+      SFX.click();
+      showModal({
+        icon: '🗑️',
+        title: '確定要重置所有學習紀錄嗎？',
+        body: '這會清除 10×10 熱圖與錯題排行榜的所有紀錄，清除後無法復原喔！',
+        buttons: [
+          {
+            label: '取消',
+            className: 'btn-3d btn-3d-slate px-5 py-3 rounded-2xl bg-slate-100 text-slate-700 font-bold border border-slate-200'
+          },
+          {
+            label: '確定清除',
+            className: 'btn-3d btn-3d-rose px-5 py-3 rounded-2xl bg-rose-500 text-white font-black',
+            onClick: () => {
+              state.stats = {};
+              saveStats();
+              renderHeatmapView();
+              showToast('已清除所有學習紀錄！', '🧹');
+            }
+          }
+        ]
+      });
+    }
+
+    /**
+     * ===========================================================
+     * 14. 十十乘法表小幫手 (#view-helper)
+     * ===========================================================
+     */
+    function renderHelperView() {
+      const tabsEl = document.getElementById('helper-table-tabs');
+      tabsEl.innerHTML = '';
+
+      for (let n = 1; n <= 10; n++) {
+        const active = state.helper.table === n;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => selectHelperTable(n);
+        btn.className = active
+          ? `btn-3d py-2.5 sm:py-3 rounded-2xl font-num font-bold text-xl sm:text-2xl text-white bg-gradient-to-b ${TABLE_COLORS[n]} border-2 shadow-md`
+          : 'btn-3d btn-3d-slate py-2.5 sm:py-3 rounded-2xl font-num font-bold text-xl sm:text-2xl text-slate-600 bg-slate-50 hover:bg-emerald-50 border-2 border-slate-200';
+        btn.textContent = n;
+        tabsEl.appendChild(btn);
+      }
+
+      renderHelperTable();
+    }
+
+    function selectHelperTable(n) {
+      SFX.click();
+      state.helper.table = n;
+      state.helper.selectedB = 1;
+      state.helper.revealedCells = {};
+      renderHelperView();
+    }
+
+    function renderHelperTable() {
+      const a = state.helper.table;
+      const hideAnswers = document.getElementById('chk-helper-hide').checked;
+      const listEl = document.getElementById('helper-equations-list');
+      listEl.innerHTML = '';
+
+      for (let b = 1; b <= 10; b++) {
+        const isSelected = state.helper.selectedB === b;
+        const isCellRevealed = !hideAnswers || state.helper.revealedCells[b];
+        const ans = a * b;
+        const mnemonic = getMnemonic(a, b);
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.onclick = () => selectHelperEquation(b);
+        card.className = isSelected
+          ? 'w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-sky-50 border-2 border-sky-400 shadow-md transition-all text-left'
+          : 'w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white hover:bg-amber-50 border-2 border-slate-200 transition-all text-left';
+
+        card.innerHTML = `
+          <div class="font-num font-bold text-2xl sm:text-3xl text-slate-800">
+            ${a} × ${b} = <span class="${isCellRevealed ? 'text-emerald-600' : 'text-amber-500'}">${isCellRevealed ? ans : '?'}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs sm:text-sm font-black px-3 py-1 rounded-xl ${isCellRevealed ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-400'}">
+              ${isCellRevealed ? mnemonic : '點我看答案'}
+            </span>
+            <span class="text-lg">🔊</span>
+          </div>
+        `;
+        listEl.appendChild(card);
+      }
+
+      renderHelperStage();
+    }
+
+    function selectHelperEquation(b) {
+      SFX.click();
+      state.helper.selectedB = b;
+      state.helper.revealedCells[b] = true;
+      renderHelperTable();
+      speakHelperSelected();
+    }
+
+    function renderHelperStage() {
+      const a = state.helper.table;
+      const b = state.helper.selectedB;
+      const ans = a * b;
+      const mnemonic = getMnemonic(a, b);
+
+      document.getElementById('helper-stage-eq').innerHTML =
+        `${a} × ${b} = <span class="text-emerald-600">${ans}</span>`;
+      document.getElementById('helper-stage-mnemonic').textContent = `口訣：${mnemonic}`;
+      document.getElementById('helper-stage-caption').textContent =
+        `有 ${a} 排，每排有 ${b} 顆點點，合起來一共有 ${ans} 顆！`;
+
+      renderDotArray(document.getElementById('helper-stage-dots'), a, b, false);
+    }
+
+    function speakHelperSelected() {
+      const a = state.helper.table;
+      const b = state.helper.selectedB;
+      speakText(`${a} 乘以 ${b} 等於 ${a * b}，${getMnemonic(a, b)}`);
+    }
+
+    /**
+     * ===========================================================
+     * 15. 鍵盤快捷鍵與視窗事件初始化
+     * ===========================================================
+     */
+    document.addEventListener('keydown', (e) => {
+      if (state.activeTab !== 'quiz' || !state.quiz.active || isModalOpen()) return;
+      // 忽略在輸入框內的按鍵
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      if (e.code === 'KeyP' || e.code === 'Escape') {
+        e.preventDefault();
+        togglePause();
+        return;
+      }
+
+      if (state.quiz.paused) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!state.quiz.revealed) {
+          revealAnswer();
+        }
+      } else if (e.code === 'KeyH') {
+        e.preventDefault();
+        toggleDotHint();
+      } else if (state.quiz.revealed) {
+        if (e.code === 'ArrowRight' || e.code === 'KeyO' || e.code === 'Digit1' || e.code === 'Enter') {
+          e.preventDefault();
+          submitResult(true);
+        } else if (e.code === 'ArrowLeft' || e.code === 'KeyX' || e.code === 'Digit2') {
+          e.preventDefault();
+          submitResult(false);
+        }
+      }
+    });
+
+    window.addEventListener('resize', resizeConfettiCanvas);
+
+    // 預載入語音清單（部分瀏覽器需要觸發一次 getVoices）
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
+    window.onload = function () {
+      loadData();
+      renderSoundButtons();
+      renderSetupUI();
+      switchTab('setup');
+      resizeConfettiCanvas();
+    };
+  </script>
+</body>
+</html>
